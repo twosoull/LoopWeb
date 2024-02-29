@@ -20,8 +20,7 @@ public class TestController {
     @GetMapping("/test")
     public String test(){
 
-        Contact contact = em.find(Contact.class, 140);
 
-        return contact.getFiles().toString();
+        return "";
     }
 }

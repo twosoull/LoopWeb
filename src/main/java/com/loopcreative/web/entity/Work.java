@@ -15,9 +15,6 @@ public class Work {
     @Column(name="work_no")
     private Long id;
 
-    @OneToMany(mappedBy = "work")
-    private List<Files> files = new ArrayList();
-
     private String workTitle;
     private String workType;
     private String useYn;
@@ -72,11 +69,5 @@ public class Work {
         this.udpDt = udpDt;
     }
 
-    public List<Files> getFiles() {
-        return files;
-    }
 
-    public void setFiles(List<Files> files) {
-        this.files = files;
-    }
 }

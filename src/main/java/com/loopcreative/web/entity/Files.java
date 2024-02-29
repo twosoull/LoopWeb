@@ -10,12 +10,12 @@ public class Files {
     @Column(name="file_no")
     private Long Id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parents_no")
+    @ManyToOne
+    @JoinColumn(name="work_no")
     private Work work;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parents_no")
+    @JoinColumn(name="contact_no")
     private Contact contact;
 
     private Integer ord;
