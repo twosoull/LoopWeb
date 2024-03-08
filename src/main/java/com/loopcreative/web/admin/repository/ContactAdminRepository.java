@@ -1,18 +1,13 @@
 package com.loopcreative.web.admin.repository;
 
 import com.loopcreative.web.entity.Contact;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+public interface ContactAdminRepository extends JpaRepository<Contact,Long> {
 
-@Repository
-public class ContactAdminRepository {
-
-    @PersistenceContext
-    private EntityManager em;
-
-
-
+    @Query("select c from Contact c left join fetch c.files")
+    Page<Contact> findAllFetchFiles(Pageable pageable);
 }

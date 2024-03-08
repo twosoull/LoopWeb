@@ -1,6 +1,5 @@
 package com.loopcreative.web.controller;
 
-import com.loopcreative.web.dto.WorkDTO;
 import com.loopcreative.web.service.MainService;
 import com.loopcreative.web.entity.Work;
 import com.loopcreative.web.util.Message;
@@ -26,14 +25,13 @@ public class MainController {
 
         List<Work> works = mainService.mainWorkList();
 
-        List<WorkDTO> workDTOList = new ArrayList<>();
-        for (Work w : works) {
-            workDTOList.add(WorkDTO.toDTO(w));
-        }
+        //works.stream().map(w -> new WorkDTO(w));
 
-        Message message = Message.getMessage(workDTOList,HttpStatus.OK);
+        //Message message = Message.getMessage(workDTOList,HttpStatus.OK);
 
-        return new ResponseEntity<Message>(message,HttpStatus.OK);
+        // return new ResponseEntity<Message>(message,HttpStatus.OK);
+
+        return null;
     }
 
 }

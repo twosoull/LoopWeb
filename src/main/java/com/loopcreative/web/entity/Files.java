@@ -14,8 +14,8 @@ public class Files {
     @JoinColumn(name="work_no")
     private Work work;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="contact_no")
+    @OneToOne
+    @JoinColumn(name = "contact_no")
     private Contact contact;
 
     private Integer ord;

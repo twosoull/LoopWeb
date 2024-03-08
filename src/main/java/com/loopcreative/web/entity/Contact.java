@@ -14,8 +14,9 @@ public class Contact {
     @Column(name="contact_no")
     private Long id;
 
-    @OneToMany(mappedBy = "contact")
-    private List<Files> files = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "contact_no")
+    private Files files;
 
     private String contactClientCompany;
     private String contactClientName;
@@ -107,12 +108,12 @@ public class Contact {
         this.regDate = regDate;
     }
 
-    public List<Files> getFiles() {
-        return files;
+    public void setFiles(Files files) {
+        this.files = files;
     }
 
-    public void setFiles(List<Files> files) {
-        this.files = files;
+    public Files getFiles() {
+        return files;
     }
 
     @Override
