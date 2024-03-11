@@ -25,6 +25,7 @@ public class ContactDto {
     private String contactProjectSchedule;
     private String contactVideoLength;
     private String contactBudget;
+    private String useYn;
     private LocalDate regDate;
 
     public ContactDto(Contact c){
@@ -38,6 +39,8 @@ public class ContactDto {
         this.contactProjectSchedule = c.getContactProjectSchedule();
         this.contactVideoLength = c.getContactVideoLength();
         this.contactBudget = c.getContactBudget();
+        this.useYn = c.getUseYn();
         this.regDate = c.getRegDate();
     }
+
 }

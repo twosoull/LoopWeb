@@ -14,7 +14,7 @@ public class Contact {
     @Column(name="contact_no")
     private Long id;
 
-    @OneToOne
+    @OneToOne(mappedBy = "contact")
     @JoinColumn(name = "contact_no")
     private Files files;
 
@@ -26,7 +26,17 @@ public class Contact {
     private String contactProjectSchedule;
     private String contactVideoLength;
     private String contactBudget;
+    private String useYn;
     private LocalDate regDate;
+
+
+    public String getUseYn() {
+        return useYn;
+    }
+
+    public void setUseYn(String useYn) {
+        this.useYn = useYn;
+    }
 
     public Long getId() {
         return id;
@@ -116,19 +126,4 @@ public class Contact {
         return files;
     }
 
-    @Override
-    public String toString() {
-        return "Contact{" +
-                "id=" + id +
-                ", contactClientCompany='" + contactClientCompany + '\'' +
-                ", contactClientName='" + contactClientName + '\'' +
-                ", contactClientTel='" + contactClientTel + '\'' +
-                ", contactClientMail='" + contactClientMail + '\'' +
-                ", contactProjectTitle='" + contactProjectTitle + '\'' +
-                ", contactProjectSchedule='" + contactProjectSchedule + '\'' +
-                ", contactVideoLength='" + contactVideoLength + '\'' +
-                ", contactBudget='" + contactBudget + '\'' +
-                ", regDate=" + regDate +
-                '}';
-    }
 }
