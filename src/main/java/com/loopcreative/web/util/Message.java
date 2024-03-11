@@ -11,12 +11,15 @@ public class Message {
     private Object data;
 
     public Message() {
-        this.status = HttpStatus.BAD_REQUEST;
-        this.data = null;
-        this.message = null;
     }
 
-    public static Message getMessage(Object object,HttpStatus httpStatus){
+    public Message(Object obejct) {
+        this.status = HttpStatus.OK;
+        this.data = obejct;
+        this.message = "success";
+    }
+
+    public static Message getMessage(Object object, HttpStatus httpStatus){
         Message message = new Message();
         message.setMessage("success");
         message.setData(object);
