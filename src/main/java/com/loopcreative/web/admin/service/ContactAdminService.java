@@ -1,6 +1,7 @@
 package com.loopcreative.web.admin.service;
 
 import com.loopcreative.web.admin.repository.ContactAdminRepository;
+import com.loopcreative.web.admin.validate.ContactAdminServiceVali;
 import com.loopcreative.web.dto.ContactDto;
 import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.error.RestApiException;
@@ -19,9 +20,11 @@ import java.util.Optional;
 public class ContactAdminService {
 
     private final ContactAdminRepository contactAdminRepository;
+    private final ContactAdminServiceVali contactAdminServiceVali;
 
     public Page<ContactDto> findContactAll(Pageable pageable){
         Page<Contact> findContacts =contactAdminRepository.findAllFetchFiles(pageable,"Y");
+        contactAdminServiceVali.hasList(findContacts);
         return findContacts.map(c -> new ContactDto(c));
 
     }

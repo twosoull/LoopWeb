@@ -10,11 +10,7 @@ public class Files {
     @Column(name="file_no")
     private Long Id;
 
-    @ManyToOne
-    @JoinColumn(name="work_no")
-    private Work work;
-
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contact_no")
     private Contact contact;
 
@@ -25,6 +21,24 @@ public class Files {
     private String saveName;
     private String cd;
 
+
+    public Files() {
+    }
+
+    public Files(String filePath, String orgName, String exName, String saveName) {
+        this.filePath = filePath;
+        this.orgName = orgName;
+        this.exName = exName;
+        this.saveName = saveName;
+    }
+
+    public Files(String filePath, String orgName, String exName, String saveName, String cd) {
+        this.filePath = filePath;
+        this.orgName = orgName;
+        this.exName = exName;
+        this.saveName = saveName;
+        this.cd = cd;
+    }
 
     public Long getId() {
         return Id;
@@ -80,14 +94,6 @@ public class Files {
 
     public void setCd(String cd) {
         this.cd = cd;
-    }
-
-    public Work getWork() {
-        return work;
-    }
-
-    public void setWork(Work work) {
-        this.work = work;
     }
 
     @Override

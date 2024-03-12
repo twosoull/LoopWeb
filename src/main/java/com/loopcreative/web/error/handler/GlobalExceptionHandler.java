@@ -1,29 +1,43 @@
 package com.loopcreative.web.error.handler;
 
+import com.loopcreative.web.error.CommonErrorCode;
 import com.loopcreative.web.error.ErrorCode;
 import com.loopcreative.web.error.RestApiException;
 import com.loopcreative.web.error.UserErrorCode;
 import com.loopcreative.web.error.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import org.springframework.validation.BindException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
+@RestControllerAdvice
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{
 
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<Object> handleCustomException(RestApiException e){
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        BindingResult bindingResult = e.getBindingResult();
+        log.warn("handleIllegalArgument", e);
+        ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        return handleExceptionInternal(e, errorCode);
     }
 
     @ExceptionHandler(Exception.class)
@@ -32,9 +46,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode);
     }
 
+    /**
+     *
+     * @param errorCode
+     * @param message
+     * @return
+     */
+    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message) {
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(makeErrorResponse(errorCode, message));
+    }
 
-    //ResponseEntityExceptionHandler는  스프링 ExceptionHandler가 모두 구현 되어있다.
-    //하지만 에러 메세지는 반환하지 않으므로 스프링 예외에 대한 에러 응답을 보내기 위해 오버라이딩을 진행한다.
+    private ErrorResponse makeErrorResponse(ErrorCode errorCode, String message) {
+        return ErrorResponse.builder()
+                .code(errorCode.name())
+                .message(message)
+                .build();
+    }
+
+    /**
+     *
+     * ResponseEntityExceptionHandler는  스프링 ExceptionHandler가 모두 구현 되어있다.
+     * 하지만 에러 메세지는 반환하지 않으므로 스프링 예외에 대한 에러 응답을 보내기 위해 오버라이딩을 진행한다.
+     */
     private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode) {
         return ResponseEntity
                 .status(errorCode.getHttpStatus())
@@ -49,5 +83,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
     }
 
+    /**
+     * Valid 사용 시
+     * @param e
+     * @param errorCode
+     * @return
+     */
+    private ResponseEntity<Object> handleExceptionInternal(BindException e, ErrorCode errorCode) {
+        return ResponseEntity.status(errorCode.getHttpStatus())
+                .body(makeErrorResponse(e, errorCode));
+    }
+
+    private ErrorResponse makeErrorResponse(BindException e, ErrorCode errorCode) {
+        List<ErrorResponse.ValidationError> validationErrorList = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(ErrorResponse.ValidationError::of)
+                .collect(Collectors.toList());
+
+        return ErrorResponse.builder()
+                .status(errorCode.getStatus())
+                .code(errorCode.name())
+                .message(errorCode.getMessage())
+                .errors(validationErrorList)
+                .build();
+    }
 
 }

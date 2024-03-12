@@ -1,4 +1,4 @@
-package com.loopcreative.web.repository;
+package com.loopcreative.web.front.repository;
 
 import com.loopcreative.web.entity.Work;
 import jakarta.persistence.EntityManager;
