@@ -1,8 +1,10 @@
 package com.loopcreative.web.front.service;
 
+import com.loopcreative.web.admin.validate.ContactAdminServiceVali;
 import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.form.ContactForm;
 import com.loopcreative.web.front.repository.ContactRepository;
+import com.loopcreative.web.front.validate.ContactServiceVali;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContactService {
 
     private final ContactRepository contactRepository;
+    private final ContactServiceVali contactServiceVali;
 
     @Transactional
-    public void save(ContactForm contactForm){
-        contactForm.setUseYn("Y");
+    public Contact save(ContactForm contactForm){
+        contactServiceVali.saveValidation(contactForm);
         Contact contact = contactForm.changeEntity(contactForm);
-        contactRepository.save(contact);
+        Contact saveContact = contactRepository.save(contact);
+        return saveContact;
     }
 }

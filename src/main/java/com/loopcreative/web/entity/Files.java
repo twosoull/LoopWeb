@@ -14,13 +14,14 @@ public class Files {
     @JoinColumn(name = "contact_no")
     private Contact contact;
 
-    private Integer ord;
+    private Integer ord; //전체순서
     private String filePath;
     private String orgName;
     private String exName;
     private String saveName;
     private String cd;
-
+    private Integer tmplType; //템플릿 순서
+    private Integer picOrd; //사진 순서
 
     public Files() {
     }
@@ -38,6 +39,20 @@ public class Files {
         this.exName = exName;
         this.saveName = saveName;
         this.cd = cd;
+    }
+
+    public Files(Integer ord, Integer picOrd, Integer tmplType) {
+        this.ord = ord;
+        this.tmplType = tmplType;
+        this.picOrd = picOrd;
+    }
+
+    public Integer getTmplType() {
+        return tmplType;
+    }
+
+    public void setTmplType(Integer tmplType) {
+        this.tmplType = tmplType;
     }
 
     public Long getId() {
@@ -96,16 +111,11 @@ public class Files {
         this.cd = cd;
     }
 
-    @Override
-    public String toString() {
-        return "Files{" +
-                "Id=" + Id +
-                ", ord=" + ord +
-                ", filePath='" + filePath + '\'' +
-                ", orgName='" + orgName + '\'' +
-                ", exName='" + exName + '\'' +
-                ", saveName='" + saveName + '\'' +
-                ", cd='" + cd + '\'' +
-                '}';
+    public Integer getPicOrd() {
+        return picOrd;
+    }
+
+    public void setPicOrd(Integer picOrd) {
+        this.picOrd = picOrd;
     }
 }

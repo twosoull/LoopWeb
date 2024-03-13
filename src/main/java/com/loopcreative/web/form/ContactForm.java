@@ -4,6 +4,7 @@ import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.entity.Files;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public class ContactForm {
     private Long contact_no;
 
     private Files files;
-
+    private MultipartFile multipartFile; /*첨부파일*/
     @NotBlank(message = "고객 회사명을 입력해주세요.")
     private String contactClientCompany;
     @NotBlank(message = "고객 이름을 입력해주세요.")
@@ -39,11 +40,11 @@ public class ContactForm {
         c.setContactClientCompany(cf.getContactClientCompany());
         c.setContactClientTel(cf.getContactClientTel());
         c.setContactBudget(cf.getContactBudget());
-        c.setUseYn("Y");
+        c.setUseYn(cf.getUseYn());
         c.setContactClientMail(cf.getContactClientMail());
         c.setContactProjectSchedule(cf.getContactProjectSchedule());
         c.setContactVideoLength(cf.getContactVideoLength());
-        c.setContactProjectTitle(cf.contactProjectTitle);
+        c.setContactProjectTitle(cf.getContactProjectTitle());
         c.setFiles(cf.getFiles());
 
         return c;

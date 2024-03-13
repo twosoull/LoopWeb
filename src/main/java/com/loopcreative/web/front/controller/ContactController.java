@@ -1,7 +1,7 @@
 package com.loopcreative.web.front.controller;
 
+import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.entity.Files;
-import com.loopcreative.web.file.repository.FileRepository;
 import com.loopcreative.web.file.service.FileService;
 import com.loopcreative.web.form.ContactForm;
 import com.loopcreative.web.front.service.ContactService;
@@ -12,12 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +22,8 @@ public class ContactController {
 
     private final ContactService contactService;
     private final FileService fileService;
+    private final FileUtil fileUtil;
+
     /**
      *
      * @param contactForm
@@ -33,9 +31,20 @@ public class ContactController {
      */
     @PostMapping("/contact/save")
     public ResponseEntity<Message> save(@Valid ContactForm contactForm){
-        contactService.save(contactForm);
+        Contact saveContact = contactService.save(contactForm);
 
-        return new ResponseEntity<Message>(new Message(), HttpStatus.OK);
+        String cd = "contact_file";
+        Files files = fileUtil.uploadFile(contactForm.getMultipartFile()); //파일이 없을 경우 null 반환
+        if(files != null){
+            fileService.save(files,saveContact.getId(),cd);
+        }
+
+        //메일 보내는 로직 필요
+
+        Message message = new Message();
+        message.setMessage("저장에 성공했습니다.");
+        message.setData(saveContact);
+        return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 
     /**
@@ -43,15 +52,19 @@ public class ContactController {
      * @param multipartFile
      * @return
      */
+    /*
     @PostMapping("/contact/fileUpload")
     public ResponseEntity<Message> insertFile(@RequestPart(value = "multipartFile") MultipartFile multipartFile){
         String cd = "contact_file";
-        Files saveFile = fileService.save(multipartFile, cd);
+
+        Files files = fileUtil.uploadFile(contactForm.getMultipartFile());
+        files.setCd(cd);
+        Files saveFile = fileService.save(multipartFile);
 
         Message message = new Message();
         message.setMessage("저장에 성공했습니다.");
         message.setData(saveFile.getId());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
-
+*/
 }

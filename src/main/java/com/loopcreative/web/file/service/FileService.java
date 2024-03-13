@@ -22,18 +22,19 @@ public class FileService {
     private final FileRepository fileRepository;
     private final FileUtil fileUtil;
 
-    public Files save(MultipartFile multipartFile, String cd){
-        Files files = fileUtil.saveFile(multipartFile);
+
+    public Files save(Files files,Long parentsId,String cd){
         if(files == null){
             throw new RestApiException(UserErrorCode.FAIL_UPLOAD);
         }
+
         files.setCd(cd);
-        return fileRepository.save(files);
+        Files saveFile = fileRepository.save(files);
+        FilesContactNoUpdate(parentsId, saveFile.getId(), cd);
+        return saveFile;
     }
 
-    public void update( Long updateId,Long id, String cd){
-
-        fileRepository.updateFilesByUpdateIdAndIdAndCd(updateId,id,cd);
-
+    public void FilesContactNoUpdate( Long parentsId,Long id, String cd){
+        fileRepository.updateFilesByUpdateIdAndIdAndCd(parentsId,id,cd);
     }
 }

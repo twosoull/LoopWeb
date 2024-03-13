@@ -23,7 +23,7 @@ public class ContactAdminService {
     private final ContactAdminServiceVali contactAdminServiceVali;
 
     public Page<ContactDto> findContactAll(Pageable pageable){
-        Page<Contact> findContacts =contactAdminRepository.findAllFetchFiles(pageable,"Y");
+        Page<Contact> findContacts = contactAdminRepository.findAllFetchFiles(pageable,"Y");
         contactAdminServiceVali.hasList(findContacts);
         return findContacts.map(c -> new ContactDto(c));
 

@@ -6,6 +6,7 @@ import com.loopcreative.web.entity.Contact;
 
 import com.loopcreative.web.util.Message;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ContactAdminController {
 
     final private ContactAdminService contactAdminService;
@@ -29,8 +31,8 @@ public class ContactAdminController {
     public ResponseEntity<Message> list(@PageableDefault(page = 0, size = 10, sort = "regDate", direction = Sort.Direction.ASC)
                               Pageable pageable){
         Page<ContactDto> contacts = contactAdminService.findContactAll(pageable);
-        Message message = new Message(contacts);
 
+        Message message = new Message(contacts);
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 

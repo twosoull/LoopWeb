@@ -1,8 +1,6 @@
 package com.loopcreative.web.util;
 
 import com.loopcreative.web.entity.Files;
-import com.loopcreative.web.error.RestApiException;
-import com.loopcreative.web.error.UserErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,53 +17,59 @@ public class FileUtil {
     //final String SAVEDIR = "C:\\loop\\loopMotionStudio\\LoopMotionStudio\\src\\main\\webapp\\resources\\upload\\images";
     //final String SAVEROOT = "/resources/upload/images";
 
-    public Files saveFile(MultipartFile file) {
-        // 오리지널 파일이름
-        String orgName = file.getOriginalFilename();
-        orgName = orgName.replaceAll(" ", "");
-        // 확장자
-        String exName = orgName.substring(orgName.lastIndexOf("."));
-        // 저장명
-        String saveName = System.currentTimeMillis() + UUID.randomUUID().toString() + exName;
+    public Files uploadFile(MultipartFile file) {
+        Boolean hasFile = file.getSize() < 0 ? Boolean.TRUE : Boolean.FALSE;
 
-        long fileSize = file.getSize();
+        if(hasFile) {
 
-        String savePath = SAVEDIR + "/" + saveName;
-        String filePath = SAVEROOT + "/" + saveName;
-        log.info("--파일 물리적 저장--");
-        log.info("--orgName : {}",orgName);
-        log.info("--exName : {}",exName);
-        log.info("--saveName : {}",saveName);
-        log.info("--savePath : {}",savePath);
-        log.info("--filePath : {}",filePath);
+            // 오리지널 파일이름
+            String orgName = file.getOriginalFilename();
+            orgName = orgName.replaceAll(" ", "");
+            // 확장자
+            String exName = orgName.substring(orgName.lastIndexOf("."));
+            // 저장명
+            String saveName = System.currentTimeMillis() + UUID.randomUUID().toString() + exName;
+
+            long fileSize = file.getSize();
+
+            String savePath = SAVEDIR + "/" + saveName;
+            String filePath = SAVEROOT + "/" + saveName;
+            log.info("--파일 물리적 저장--");
+            log.info("--orgName : {}", orgName);
+            log.info("--exName : {}", exName);
+            log.info("--saveName : {}", saveName);
+            log.info("--savePath : {}", savePath);
+            log.info("--filePath : {}", filePath);
 
 
-        boolean success = Boolean.FALSE;
-        boolean fail = !success;
-        try {
-            byte[] fileData = file.getBytes();
+            boolean success = Boolean.FALSE;
+            boolean fail = !success;
+            try {
+                byte[] fileData = file.getBytes();
 
-            OutputStream out = new FileOutputStream(savePath); // 어떤이름으로 저장하는지 까지도..
-            BufferedOutputStream bos = new BufferedOutputStream(out);
-            bos.write(fileData);
-            bos.close();
-            out.close();
-            success = Boolean.TRUE;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.info("--파일 물리적 저장 실패 -");
-            success = Boolean.FALSE;
-        } finally {
+                OutputStream out = new FileOutputStream(savePath); // 어떤이름으로 저장하는지 까지도..
+                BufferedOutputStream bos = new BufferedOutputStream(out);
+                bos.write(fileData);
+                bos.close();
+                out.close();
+                success = Boolean.TRUE;
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.info("--파일 물리적 저장 실패 -");
+                success = Boolean.FALSE;
+            } finally {
 
+            }
+            log.info("--파일 물리적 저장 end--");
+
+            Files files = null;
+            if (success) {
+                files = new Files(filePath, orgName, exName, saveName);
+            }
+            return files;
+        }else{
+            return null;
         }
-        log.info("--파일 물리적 저장 end--");
-
-        Files files = null;
-        if(success){
-            files = new Files(filePath, orgName, exName, saveName);
-        }
-
-        return files;
     }
 
 /*

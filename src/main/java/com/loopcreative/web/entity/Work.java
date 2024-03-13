@@ -15,11 +15,26 @@ public class Work {
     @Column(name="work_no")
     private Long id;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "work_no")
+    private List<Files> files;
+
     private String workTitle;
     private String workType;
     private String useYn;
-    private LocalDateTime regDt;
-    private LocalDateTime udpDt;
+
+
+    private LocalDateTime regDate;
+    private LocalDateTime updDate;
+
+
+
+
+
+
+    public List<Files> getFiles() {
+        return files;
+    }
 
     public Long getId() {
         return id;
@@ -53,21 +68,12 @@ public class Work {
         this.useYn = useYn;
     }
 
-    public LocalDateTime getRegDt() {
-        return regDt;
+    public LocalDateTime getRegDate() {
+        return regDate;
     }
 
-    public void setRegDt(LocalDateTime regDt) {
-        this.regDt = regDt;
+    public LocalDateTime getUpdDate() {
+        return updDate;
     }
-
-    public LocalDateTime getUdpDt() {
-        return udpDt;
-    }
-
-    public void setUdpDt(LocalDateTime udpDt) {
-        this.udpDt = udpDt;
-    }
-
 
 }
