@@ -1,9 +1,11 @@
 package com.loopcreative.web.dto;
 
+import com.loopcreative.web.entity.Files;
 import com.loopcreative.web.entity.Work;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class WorkDto {
@@ -14,6 +16,10 @@ public class WorkDto {
     private String useYn;
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
+    private List<Files> filesList;
+
+    public WorkDto() {
+    }
 
     public WorkDto(Work w) {
         this.id = w.getId();

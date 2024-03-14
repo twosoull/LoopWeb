@@ -1,5 +1,6 @@
 package com.loopcreative.web.entity;
 
+import com.loopcreative.web.dto.WorkDto;
 import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -22,15 +23,8 @@ public class Work {
     private String workTitle;
     private String workType;
     private String useYn;
-
-
     private LocalDateTime regDate;
     private LocalDateTime updDate;
-
-
-
-
-
 
     public List<Files> getFiles() {
         return files;
@@ -76,4 +70,16 @@ public class Work {
         return updDate;
     }
 
+    public WorkDto changeDto(){
+        WorkDto wd = new WorkDto();
+        wd.setId(this.getId());
+        wd.setWorkTitle(this.getWorkTitle());
+        wd.setWorkType(this.getWorkType());
+        wd.setUseYn(this.getUseYn());
+        wd.setRegDt(this.getRegDate());
+        wd.setUdpDt(this.getUpdDate());
+        wd.setFilesList(this.files);
+
+        return wd;
+    }
 }

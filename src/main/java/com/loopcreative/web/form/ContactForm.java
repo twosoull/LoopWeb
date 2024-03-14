@@ -34,7 +34,7 @@ public class ContactForm {
     private String useYn;
     private LocalDate regDate;
 
-    public Contact changeEntity(ContactForm cf){
+    public Contact toEntity(ContactForm cf){
         Contact c = new Contact();
         c.setContactClientName(cf.getContactClientName());
         c.setContactClientCompany(cf.getContactClientCompany());

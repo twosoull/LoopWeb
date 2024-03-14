@@ -10,7 +10,11 @@ import java.util.List;
 public interface FileRepository extends JpaRepository<Files,Long> {
 
     @Query(value = "update tbl_file f set f.contact_no = :contact_no where f.file_no = :file_no and f.cd = :cd", nativeQuery = true)
-    void updateFilesByUpdateIdAndIdAndCd(@Param("contact_no") Long updateId,
+    void updateFilesByContactIdAndIdAndCd(@Param("contact_no") Long updateId,
                                          @Param("file_no") Long file_id,
                                          @Param("cd") String cd);
+
+    @Query(value = "update tbl_file f set f.work_no = :work_no where f.file_no = :file_no ", nativeQuery = true)
+    void updateFilesByWorkIdAndIdAndCd(@Param("work_no") Long updateId,
+                                          @Param("file_no") Long file_id);
 }

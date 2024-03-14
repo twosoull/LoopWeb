@@ -1,5 +1,6 @@
 package com.loopcreative.web.front.controller;
 
+import com.loopcreative.web.dto.ContactDto;
 import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.entity.Files;
 import com.loopcreative.web.file.service.FileService;
@@ -32,39 +33,20 @@ public class ContactController {
     @PostMapping("/contact/save")
     public ResponseEntity<Message> save(@Valid ContactForm contactForm){
         Contact saveContact = contactService.save(contactForm);
-
+        ContactDto contactDto = new ContactDto(saveContact);
         String cd = "contact_file";
         Files files = fileUtil.uploadFile(contactForm.getMultipartFile()); //파일이 없을 경우 null 반환
         if(files != null){
-            fileService.save(files,saveContact.getId(),cd);
+            fileService.save(files,cd);
+            fileService.filesContactIdUpdate(saveContact.getId(), files.getId(), cd);
         }
 
         //메일 보내는 로직 필요
 
         Message message = new Message();
         message.setMessage("저장에 성공했습니다.");
-        message.setData(saveContact);
+        message.setData(contactDto);
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 
-    /**
-     *
-     * @param multipartFile
-     * @return
-     */
-    /*
-    @PostMapping("/contact/fileUpload")
-    public ResponseEntity<Message> insertFile(@RequestPart(value = "multipartFile") MultipartFile multipartFile){
-        String cd = "contact_file";
-
-        Files files = fileUtil.uploadFile(contactForm.getMultipartFile());
-        files.setCd(cd);
-        Files saveFile = fileService.save(multipartFile);
-
-        Message message = new Message();
-        message.setMessage("저장에 성공했습니다.");
-        message.setData(saveFile.getId());
-        return new ResponseEntity<Message>(message, HttpStatus.OK);
-    }
-*/
 }

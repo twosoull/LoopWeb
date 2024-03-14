@@ -1,13 +1,18 @@
 package com.loopcreative.web.admin.controller;
 
+import com.loopcreative.web.admin.repository.WorkAdminRepository;
 import com.loopcreative.web.admin.service.WorkAdminService;
 import com.loopcreative.web.dto.WorkDto;
+import com.loopcreative.web.entity.Contact;
 import com.loopcreative.web.entity.Files;
 import com.loopcreative.web.entity.Work;
 import com.loopcreative.web.file.repository.FileRepository;
+import com.loopcreative.web.form.CreditsForm;
+import com.loopcreative.web.form.WorkForm;
 import com.loopcreative.web.util.Message;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,6 +40,7 @@ public class WorkAdminController {
 
     private final WorkAdminService workAdminService;
     private final FileRepository fileRepository;
+    private final WorkAdminRepository workAdminRepository;
     //리스트
     @GetMapping("/admin/work/list")
     public ResponseEntity<Message> list(@PageableDefault(page = 0, size = 10, sort = "regDate", direction = Sort.Direction.ASC)
@@ -44,15 +52,22 @@ public class WorkAdminController {
     }
     //조회
     @GetMapping("/admin/work/findId")
-    public ResponseEntity<Message> findWorkId(){
+    public ResponseEntity<Message> findWorkId(@RequestParam("work_id")Long id){
+        WorkDto workDto = workAdminService.findWorkFileById(id);
 
-
-
-        Message message = new Message();
+        Message message = new Message(workDto);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
     //등록
+
+    @PostMapping("/admin/work/save")
+    public ResponseEntity<Message> save(WorkForm workForm, CreditsForm creditsForm){ //valid 처리 필요
+        WorkDto workDto = workAdminService.save(workForm,creditsForm);
+
+        Message message = new Message(workDto);
+        return new ResponseEntity<>(message,HttpStatus.OK);
+    }
+
 
     //수정
 

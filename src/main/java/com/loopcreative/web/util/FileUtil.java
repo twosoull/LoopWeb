@@ -18,7 +18,11 @@ public class FileUtil {
     //final String SAVEROOT = "/resources/upload/images";
 
     public Files uploadFile(MultipartFile file) {
-        Boolean hasFile = file.getSize() < 0 ? Boolean.TRUE : Boolean.FALSE;
+        Boolean hasFile = !file.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
+        if(!hasFile){return null;}
+
+        hasFile = file.getOriginalFilename() != null ? Boolean.TRUE : Boolean.FALSE;
+        if (!hasFile) {return null;}
 
         if(hasFile) {
 
