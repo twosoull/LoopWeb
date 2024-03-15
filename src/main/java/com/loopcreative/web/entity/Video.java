@@ -12,7 +12,7 @@ public class Video {
     @Column(name = "video_no")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "work_no")
     private Work work;
 
@@ -23,6 +23,17 @@ public class Video {
     private Integer ord;
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
+
+    public Video() {
+    }
+
+    public Video(String videoUrl, String videoTitle, String videoContent, String videoType, Integer ord) {
+        this.videoUrl = videoUrl;
+        this.videoTitle = videoTitle;
+        this.videoContent = videoContent;
+        this.videoType = videoType;
+        this.ord = ord;
+    }
 
     public Long getId() {
         return id;

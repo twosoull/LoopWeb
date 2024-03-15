@@ -12,9 +12,12 @@ spring:
       hibernate:
         format_sql: true #To beautify or pretty print the SQL
         show_sql: true #show sql
-
-logging:
-  level:
-    org.hibernate:
-      type.descriptor.sql: trace #show parameter binding
-      SQL: DEBUG
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        one-indexed-parameter: true
+logging.level:
+  org.hibernate.SQL: debug
+  org.hibernate.type: trace
+  org.hibernate.orm.jdbc.bind: trace

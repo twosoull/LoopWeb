@@ -4,19 +4,16 @@ import com.loopcreative.web.entity.Credits;
 import com.loopcreative.web.entity.Work;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class CreditsForm {
 
-    private Long id;
-    private String job;
-    private String name;
-    private Integer ord;
+    private Long[] creditsId;
+    private String[] creditsJob;
+    private String[] creditsName;
+    private Integer[] creditsOrd;
 
-    public void toEntity() {
-        Credits c = new Credits();
-        c.setJob(this.job);
-        c.setName(this.name);
-        c.setOrd(this.ord);
-    }
+
 }

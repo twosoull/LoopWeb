@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class WorkForm {
 
+    private Long workId;
     private String workTitle;
     private String workType;
     private String useYn;

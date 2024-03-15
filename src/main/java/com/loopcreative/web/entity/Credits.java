@@ -18,6 +18,14 @@ public class Credits {
     private String name;
     private Integer ord;
 
+    public Credits() {}
+
+    public Credits( Integer ord, String job, String name) {
+        this.ord = ord;
+        this.job = job;
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }
@@ -58,14 +66,4 @@ public class Credits {
         this.ord = ord;
     }
 
-    @Override
-    public String toString() {
-        return "Credits{" +
-                "id=" + id +
-                ", work=" + work +
-                ", job='" + job + '\'' +
-                ", name='" + name + '\'' +
-                ", ord=" + ord +
-                '}';
-    }
 }
