@@ -78,7 +78,6 @@ public class WorkAdminController {
     }
 
 
-    //삭제
 
     //순서변경
     //@PostConstruct

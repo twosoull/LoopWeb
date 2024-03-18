@@ -120,7 +120,7 @@ public class WorkAdminService {
                 String job = getValueOrNull(creditsForm.getCreditsJob(),i);
                 String name = getValueOrNull(creditsForm.getCreditsName(),i);
 
-                work.getCredits().add(new Credits(ord,job,name));
+                work.addCredits(new Credits(ord,job,name));
             }
         }
     }
@@ -134,7 +134,7 @@ public class WorkAdminService {
                 String title = getValueOrNull(videoForm.getVideoTitle(), i);
                 String content = getValueOrNull(videoForm.getVideoContent(), i);
 
-                work.getVideos().add(new Video(url, title, content, type, ord));
+                work.addVideo(new Video(url, title, content, type, ord));
             }
         }
     }
@@ -148,4 +148,5 @@ public class WorkAdminService {
             setter.accept(value);
         }
     }
+
 }

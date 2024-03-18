@@ -36,6 +36,7 @@ public class FileController {
         files.setOrd(fileForm.getOrd());
         files.setPicOrd(fileForm.getPicOrd());
         files.setTmplType(fileForm.getTmplType());
+        files.setUseYn("N");
         Files saveFile = fileService.save(files,fileForm.getCd());
 
         Message message = new Message();
@@ -43,4 +44,20 @@ public class FileController {
         message.setData(saveFile.getId());
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
+
+    /**
+     * 일반 파일 삭제
+     * @param fileId
+     * @return
+     */
+    @PostMapping("/fileRemove")
+    public ResponseEntity<Message> removeFile(@RequestParam("fileId")Long fileId){
+        fileService.removeFile(fileId);
+
+        return new ResponseEntity<Message>(new Message(),HttpStatus.OK);
+    }
+
+    //스케쥴러 파일 삭제
+    //useYn = N 상태의 파일들 삭제하기 (저장하지 않은 파일들)
+
 }

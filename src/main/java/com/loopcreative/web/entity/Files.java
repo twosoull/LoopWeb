@@ -22,6 +22,7 @@ public class Files {
     private String cd;
     private Integer tmplType; //템플릿 순서
     private Integer picOrd; //사진 순서
+    private String useYn;
 
     public Files() {
     }
@@ -117,5 +118,13 @@ public class Files {
 
     public void setPicOrd(Integer picOrd) {
         this.picOrd = picOrd;
+    }
+
+    public String getUseYn() {
+        return useYn;
+    }
+
+    public void setUseYn(String useYn) {
+        this.useYn = useYn;
     }
 }

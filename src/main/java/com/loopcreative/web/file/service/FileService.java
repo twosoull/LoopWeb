@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,11 +49,29 @@ public class FileService {
         return saveFile;
     }
 
+    public void removeFile(Long Id) {
+
+        Files files = fileRepository.findById(Id)
+                .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
+
+        boolean removeResult = fileUtil.removeFile(files.getFilePath());
+
+        if(removeResult){
+            fileRepository.delete(files);
+        }else{
+            throw new RestApiException(UserErrorCode.FAIL_FILE_REMOVE);
+        }
+
+    }
+
     public void filesContactIdUpdate( Long parentsId,Long id, String cd){
-        fileRepository.updateFilesByContactIdAndIdAndCd(parentsId,id,cd);
+        String useYn = "Y";
+        fileRepository.updateFilesByContactIdAndIdAndCd(parentsId,id,cd,useYn);
     }
 
     public void filesWorkIdUpdate( Long parentsId,Long id){
-        fileRepository.updateFilesByWorkIdAndIdAndCd(parentsId,id);
+        String useYn = "Y";
+        fileRepository.updateFilesByWorkIdAndIdAndCd(parentsId,id, useYn);
     }
+
 }

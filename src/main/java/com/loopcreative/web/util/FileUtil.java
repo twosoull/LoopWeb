@@ -1,17 +1,20 @@
 package com.loopcreative.web.util;
 
 import com.loopcreative.web.entity.Files;
+import com.loopcreative.web.error.RestApiException;
+import com.loopcreative.web.error.UserErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 @Slf4j
 @Component
 public class FileUtil {
-
+    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main";
     private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main/resources/static/upload/file";
     private final String SAVEROOT = "/resources/static/upload/file";
     //final String SAVEDIR = "C:\\loop\\loopMotionStudio\\LoopMotionStudio\\src\\main\\webapp\\resources\\upload\\images";
@@ -74,6 +77,23 @@ public class FileUtil {
         }else{
             return null;
         }
+    }
+
+    public boolean removeFile(String filePath)  {
+
+        File file = null;
+        try {
+            file = new File(URLDecoder.decode(RESOURCESDIR + filePath, "UTF-8")); // 풀패스 필요
+        } catch (UnsupportedEncodingException e) {
+            throw new RestApiException(UserErrorCode.FAIL_FILE_REMOVE);
+        }
+        log.info("파일 삭제--------------------------------start");
+        log.info("파일 유무 : " + String.valueOf(file.exists()));
+        boolean result = file.delete();
+        log.info("파일 삭제 여부 : " + String.valueOf(result));
+        log.info("파일 삭제----------------------------------end");
+
+        return result;
     }
 
 /*
