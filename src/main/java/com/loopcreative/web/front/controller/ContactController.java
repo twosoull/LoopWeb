@@ -26,7 +26,8 @@ public class ContactController {
     private final FileUtil fileUtil;
 
     /**
-     *
+     * 1. Contact 저장 및 Files 한번에 저장
+     * 2. 파일 저장 시에 등록된 관리자의 메일로 메일이 넘어간다.(파일 함께)
      * @param contactForm
      * @return
      */

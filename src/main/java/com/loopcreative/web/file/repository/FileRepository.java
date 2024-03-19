@@ -20,4 +20,5 @@ public interface FileRepository extends JpaRepository<Files,Long> {
                                           @Param("file_no") Long file_id,
                                        @Param("use_yn") String use_yn);
 
+    List<Files> findByUseYn(String useYn);
 }

@@ -41,7 +41,14 @@ public class WorkAdminController {
     private final WorkAdminService workAdminService;
     private final FileRepository fileRepository;
     private final WorkAdminRepository workAdminRepository;
-    //리스트
+
+    /**
+     * 1. Work 리스트 페이징 처리하여 반환
+     * 2. 한 페이지당 개수는 10개 지정
+     * 3. regData 최신 순으로 처리
+     * @param pageable
+     * @return
+     */
     @GetMapping("/admin/work/list")
     public ResponseEntity<Message> list(@PageableDefault(page = 0, size = 10, sort = "regDate", direction = Sort.Direction.ASC)
                                                     Pageable pageable){
@@ -50,7 +57,12 @@ public class WorkAdminController {
         Message message = new Message(works);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-    //조회
+
+    /**
+     * 1. id 값으로 상세 찾고 반환
+     * @param id
+     * @return
+     */
     @GetMapping("/admin/work/findId")
     public ResponseEntity<Message> findWorkId(@RequestParam("workId")Long id){
         WorkDto workDto = workAdminService.findWorkFileById(id);
@@ -58,8 +70,14 @@ public class WorkAdminController {
         Message message = new Message(workDto);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
-    //등록
 
+    /**
+     * 1. Work, Credits, Video 한번에 반환
+     * @param workForm
+     * @param creditsForm
+     * @param videoForm
+     * @return
+     */
     @PostMapping("/admin/work/save")
     public ResponseEntity<Message> save(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm){ //valid 처리 필요
         WorkDto workDto = workAdminService.save(workForm, creditsForm, videoForm);
@@ -68,7 +86,13 @@ public class WorkAdminController {
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
-    //수정
+    /**
+     * 1. Work, Credits, Video 한번에 수정
+     * @param workForm
+     * @param creditsForm
+     * @param videoForm
+     * @return
+     */
     @PostMapping("/admin/work/update")
     public ResponseEntity<Message> update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm){ //valid 처리 필요
         WorkDto workDto = workAdminService.update(workForm, creditsForm, videoForm);
@@ -76,68 +100,5 @@ public class WorkAdminController {
         Message message = new Message(workDto);
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
-
-
-
-    //순서변경
-    //@PostConstruct
-    @Transactional
-    public void init(){
-        Work work = new Work();
-        work.setWorkTitle("asd");
-        work.setWorkType("01");
-        work.setUseYn("Y");
-
-        Credits credits1 = new Credits();
-        credits1.setJob("디2");
-        credits1.setOrd(1);
-        credits1.setName("동문");
-
-        Credits credits2 = new Credits();
-        credits2.setJob("디1");
-        credits2.setOrd(2);
-        credits2.setName("동문");
-
-        Video video1 = new Video();
-        video1.setVideoTitle("타이틀");
-        video1.setVideoUrl("url");
-        video1.setVideoType("");
-        video1.setOrd(1);
-        video1.setVideoContent("내용");
-
-        Video video2 = new Video();
-        video2.setVideoTitle("타이틀");
-        video2.setVideoUrl("url");
-        video2.setVideoType("");
-        video2.setOrd(1);
-        video2.setVideoContent("내용");
-
-        work.addCredits(credits1);
-        work.addCredits(credits2);
-        work.addVideo(video1);
-        work.addVideo(video2);
-
-        workAdminRepository.save(work);
-
-    }
-
-    /*
-    @PostConstruct
-    @Transactional
-    public void init(){
-    log.info("ddafsa");
-        //전체순서, 사진순서, 템플릿 타입
-
-        for(int i = 1; i <13; i++){
-            for(int j = 1; j<6; j++){
-                for(int k = 1; k<5; k++ ){
-                    Files file = new Files(j, k, i);
-                    fileRepository.save(file);
-                }
-            }
-        }
-    }
-
-     */
 
 }

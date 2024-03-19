@@ -23,12 +23,34 @@ public class UserAdminService {
     private final PasswordEncoder passwordEncoder;
     private final UserAdminServiceVali userAdminServiceVali;
 
+    /**
+     * 1. userId로 User를 찾는다.
+     * 2. passwordEncoder로 비밀번호 매치
+     * 3. 매치가 되지 않을 시 에러코드 반환 (FAIL_USER)
+     * 4. 비밀번호는 set으로 빈값 처리하여 반환 (노출 x)
+     * @param userForm
+     * @return
+     */
     public UserDto Login(UserForm userForm){
-        Optional<User> findUser= userAdminRepository.findByUserId(userForm.getUserId());
+        UserDto findUser = userAdminRepository.findByUserId(userForm.getUserId())
+                .orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_USER)).chageDto();
 
-        return findUser.orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_USER)).chageDto();
+        boolean result = passwordEncoder.matches(findUser.getUserPw(), userForm.getUserPw());
+        if(!result){
+            throw new RestApiException(UserErrorCode.FAIL_USER);
+        }
+
+        findUser.setUserPw(""); //비밀번호는 비운다.
+        return findUser;
     }
 
+    /**
+     * 1. userForm 값 vali 처리
+     * 2. passwordEncoder 사용하여 비밀번호 암호화 후 저장
+     * 3. 저장 UserId(키값x) 반환
+     * @param userForm
+     * @return
+     */
     @Transactional
     public String join(UserForm userForm) {
         //valid

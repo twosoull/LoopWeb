@@ -23,7 +23,7 @@ public class ContactAdminController {
     final private ContactAdminService contactAdminService;
 
     /**
-     *
+     * 1. Message.data = Contact List 반환
      * @param pageable
      * @return ResponseEntity<Message>
      */
@@ -37,7 +37,7 @@ public class ContactAdminController {
     }
 
     /**
-     *
+     * 1. Message.data = Contact 반환
      * @param id
      * @return ResponseEntity<Message>
      */
@@ -50,7 +50,7 @@ public class ContactAdminController {
     }
 
     /**
-     *
+     * 1. Message.data = Contact.Id 반환
      * @param id
      * @return ResponseEntity<Message>
      */

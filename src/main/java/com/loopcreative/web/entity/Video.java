@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name="tbl_video")
-public class Video {
+public class Video  extends BaseEntity{
 
     @Id @GeneratedValue
     @Column(name = "video_no")
@@ -21,8 +21,6 @@ public class Video {
     private String videoContent;
     private String videoType;
     private Integer ord;
-    private LocalDateTime regDt;
-    private LocalDateTime udpDt;
 
     public Video() {
     }
@@ -91,34 +89,5 @@ public class Video {
         this.ord = ord;
     }
 
-    public LocalDateTime getRegDt() {
-        return regDt;
-    }
 
-    public void setRegDt(LocalDateTime regDt) {
-        this.regDt = regDt;
-    }
-
-    public LocalDateTime getUdpDt() {
-        return udpDt;
-    }
-
-    public void setUdpDt(LocalDateTime udpDt) {
-        this.udpDt = udpDt;
-    }
-
-    @Override
-    public String toString() {
-        return "Video{" +
-                "id=" + id +
-                ", work=" + work +
-                ", videoUrl='" + videoUrl + '\'' +
-                ", videoTitle='" + videoTitle + '\'' +
-                ", videoContent='" + videoContent + '\'' +
-                ", videoType='" + videoType + '\'' +
-                ", ord=" + ord +
-                ", regDt=" + regDt +
-                ", udpDt=" + udpDt +
-                '}';
-    }
 }

@@ -25,6 +25,13 @@ public class LoginAdminController {
 
     private final UserAdminService userAdminService;
 
+    /**
+     * 1. session에 로그인 회원 담기 (Password 담지 않음)
+     * 2. 로그인 유저의 id 반환
+     * @param userForm
+     * @param request
+     * @return
+     */
     @PostMapping("/admin/login")
     public ResponseEntity<Message> login(UserForm userForm, HttpServletRequest request){
 
@@ -36,6 +43,13 @@ public class LoginAdminController {
         return new ResponseEntity<>(new Message(loginUser.getUserId()), HttpStatus.OK);
     }
 
+    /**
+     * 1. 회원가입 메소드
+     * 2. loopCreative는 관리계정이 하나이므로 사용하지 않음
+     * 3. Message.data = 가입회원 Id 리턴
+     * @param userForm
+     * @return
+     */
     @PostMapping("/admin/login/join")
     public ResponseEntity<Message> join(UserForm userForm){
 
@@ -44,6 +58,12 @@ public class LoginAdminController {
         return new ResponseEntity<>(new Message(joinUserId), HttpStatus.OK);
     }
 
+    /**
+     * 1. 로그아웃
+     * 2. 접근 시 세션만료
+     * @param request
+     * @return
+     */
     @PostMapping("/admin/login/logout")
     public ResponseEntity<Message> logout(HttpServletRequest request){
 

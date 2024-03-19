@@ -17,6 +17,11 @@ public class ContactService {
     private final ContactRepository contactRepository;
     private final ContactServiceVali contactServiceVali;
 
+    /**
+     * 1. valid 후 Contact 저장
+     * @param contactForm
+     * @return
+     */
     @Transactional
     public Contact save(ContactForm contactForm){
         contactServiceVali.saveValidation(contactForm);

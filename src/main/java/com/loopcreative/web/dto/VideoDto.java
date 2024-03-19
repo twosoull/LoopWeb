@@ -13,8 +13,8 @@ public class VideoDto {
     private String videoContent;
     private String videoType;
     private Integer ord;
-    private LocalDateTime regDt;
-    private LocalDateTime udpDt;
+    private LocalDateTime regDate;
+    private LocalDateTime updDate;
 
     public VideoDto(Video v) {
         this.id = v.getId();
@@ -23,7 +23,7 @@ public class VideoDto {
         this.videoContent = v.getVideoContent();
         this.videoType = v.getVideoType();
         this.ord = v.getOrd();
-        this.regDt = v.getRegDt();
-        this.udpDt = v.getUdpDt();
+        this.regDate = v.getRegDate();
+        this.updDate = v.getUpdDate();
     }
 }

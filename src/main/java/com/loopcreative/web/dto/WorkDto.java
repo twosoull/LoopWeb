@@ -20,8 +20,8 @@ public class WorkDto {
     private String workTitle;
     private String workType;
     private String useYn;
-    private LocalDateTime regDt;
-    private LocalDateTime udpDt;
+    private LocalDateTime regDate;
+    private LocalDateTime updDate;
     private List<FilesDto> filesList;
     private List<CreditsDto> credits;
     private List<VideoDto> videos;
@@ -35,7 +35,7 @@ public class WorkDto {
         this.workTitle = w.getWorkTitle();
         this.workType = w.getWorkType();
         this.useYn = w.getUseYn();
-        this.regDt = w.getRegDate();
-        this.udpDt = w.getUpdDate();
+        this.regDate = w.getRegDate();
+        this.updDate = w.getUpdDate();
     }
 }

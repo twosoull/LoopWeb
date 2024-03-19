@@ -5,16 +5,13 @@ import com.loopcreative.web.dto.FilesDto;
 import com.loopcreative.web.dto.VideoDto;
 import com.loopcreative.web.dto.WorkDto;
 import jakarta.persistence.*;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name="tbl_work")
-public class Work {
+public class Work extends BaseEntity{
 
     @Id @GeneratedValue
     @Column(name="work_no")
@@ -33,8 +30,6 @@ public class Work {
     private String workTitle;
     private String workType;
     private String useYn;
-    private LocalDateTime regDate;
-    private LocalDateTime updDate;
 
 
     public List<Credits> getCredits() {
@@ -81,13 +76,6 @@ public class Work {
         this.useYn = useYn;
     }
 
-    public LocalDateTime getRegDate() {
-        return regDate;
-    }
-
-    public LocalDateTime getUpdDate() {
-        return updDate;
-    }
 
     public List<Video> getVideos() {
         return videos;
@@ -103,8 +91,6 @@ public class Work {
         wd.setWorkTitle(this.getWorkTitle());
         wd.setWorkType(this.getWorkType());
         wd.setUseYn(this.getUseYn());
-        wd.setRegDt(this.getRegDate());
-        wd.setUdpDt(this.getUpdDate());
         if(this.getFiles() != null){
             wd.setFilesList(this.getFiles().stream().map(f -> new FilesDto(f)).collect(Collectors.toList()));
         }

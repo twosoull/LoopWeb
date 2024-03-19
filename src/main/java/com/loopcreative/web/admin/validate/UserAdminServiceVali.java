@@ -9,6 +9,10 @@ import org.springframework.util.ObjectUtils;
 @Component
 public class UserAdminServiceVali {
 
+    /**
+     * 1. form 필수 값이 null일 경우 예외 반환
+     * @param userForm
+     */
     public void userValid(UserForm userForm){
         if(ObjectUtils.isEmpty(userForm.getUserId())){
             throw new RestApiException(UserErrorCode.VALID_USER_ID);

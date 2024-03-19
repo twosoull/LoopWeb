@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name="tbl_contact")
-public class Contact {
+public class Contact extends BaseEntity{
 
     @Id @GeneratedValue
     @Column(name="contact_no")
@@ -27,7 +27,6 @@ public class Contact {
     private String contactVideoLength;
     private String contactBudget;
     private String useYn;
-    private LocalDate regDate;
 
 
     public String getUseYn() {
@@ -110,14 +109,6 @@ public class Contact {
         this.contactBudget = contactBudget;
     }
 
-    public LocalDate getRegDate() {
-        return regDate;
-    }
-
-    public void setRegDate(LocalDate regDate) {
-        this.regDate = regDate;
-    }
-
     public void setFiles(Files files) {
         this.files = files;
     }
@@ -125,5 +116,6 @@ public class Contact {
     public Files getFiles() {
         return files;
     }
+
 
 }

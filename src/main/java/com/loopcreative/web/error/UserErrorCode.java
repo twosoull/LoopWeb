@@ -17,7 +17,9 @@ public enum UserErrorCode implements ErrorCode{
     VALID_USER_PW(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"패스워드를 입력해주세요."),
     FAIL_USER(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"아이디와 패스워드를 확인해주세요."),
     NOT_USER(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"로그인이 필요한 메뉴입니다."),
-    FAIL_FILE_REMOVE(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"파일 삭제에 실패했습니다.");
+    FAIL_FILE_REMOVE(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"파일 삭제에 실패했습니다."),
+    FAIL_FILE_DOWNLOAD(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"파일 다운로드에 실패했습니다.");
+
 
     private final int status;
     private final HttpStatus httpStatus;

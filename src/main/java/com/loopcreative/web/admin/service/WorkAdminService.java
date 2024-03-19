@@ -37,12 +37,25 @@ public class WorkAdminService {
     private final CreditsAdminRepository creditsAdminRepository;
     private final VideoAdminRepository videoAdminRepository;
 
+    /**
+     * 1. Work 리스트 페이징 처리 및 Dto로 반환
+     * @param pageable
+     * @return
+     */
     public Page<WorkDto> findWorkAll(Pageable pageable){
         Page<Work> works = workAdminRepository.findAll(pageable);
         workAdminServiceVali.hasList(works);
         return works.map(w -> new WorkDto(w));
     }
 
+    /**
+     * 1. Work 와 Files는 PatchJoin 처리로 쿼리 최적화 후 반환
+     *   (default_batch_fetch_size 최적화 진행,
+     *     연관관계 테이블은 get 하는 경우 10개씩 where in절로 진행)
+     * 3. 파일이 없는 Work인 경우 재조회해서 반환
+     * @param id
+     * @return
+     */
     public WorkDto findWorkFileById(Long id){
         String str = "thumb_nail";
         Optional<Work> findWork = workAdminRepository.findWorkFileById(id);
@@ -56,6 +69,14 @@ public class WorkAdminService {
 
     }
 
+    /**
+     * 1. Work, Credits, Video는 함께 저장된다.
+     * 2. Credits, Video 는 문자열 null 데이터가 오는 경우 순서에 밀리지 않고 문자열이 아닌 null로 변환하여 저장
+     * @param workForm
+     * @param creditsForm
+     * @param videoForm
+     * @return
+     */
     @Transactional
     public WorkDto save(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
         workForm.setUseYn("Y");
@@ -71,6 +92,15 @@ public class WorkAdminService {
         return workDto;
     }
 
+
+    /**
+     * 1. Work, Credits, Video 함께 업데이트
+     * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
+     * @param workForm
+     * @param creditsForm
+     * @param videoForm
+     * @return
+     */
     @Transactional
     public WorkDto update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
         Work findWork = workAdminRepository.findById(workForm.getWorkId())
@@ -105,6 +135,12 @@ public class WorkAdminService {
         return null;
     }
 
+    /**
+     * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
+     * 2. Work 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
+     * @param workForm
+     * @param saveWork
+     */
     private void alreadyFileParentsIdUpdate(WorkForm workForm, Work saveWork) {
         if(workForm.getFileId() != null){
             for (Long fileId : workForm.getFileId()) {
@@ -113,6 +149,11 @@ public class WorkAdminService {
         }
     }
 
+    /**
+     * 1. Work 객체에 Credits 객체 set
+     * @param creditsForm
+     * @param work
+     */
     private void workAddCredits(CreditsForm creditsForm, Work work) {
         if(creditsForm.getCreditsOrd() != null){
             for(int i = 0; i < creditsForm.getCreditsOrd().length; i++){
@@ -125,6 +166,11 @@ public class WorkAdminService {
         }
     }
 
+    /**
+     * 1. Work 객체에 Video 객체 set
+     * @param videoForm
+     * @param work
+     */
     private void workAddVideo(VideoForm videoForm, Work work) {
         if (videoForm.getOrd() != null) {
             for (int i = 0; i < videoForm.getOrd().length; i++) {
@@ -139,10 +185,22 @@ public class WorkAdminService {
         }
     }
 
+    /**
+     * 1. 문자열 "null"이거나 값이 없을 경우에 null 반환
+     * @param array
+     * @param index
+     * @return
+     */
     private String getValueOrNull(String[] array, int index) {
         return (array != null && index < array.length ) ? ("null".equals(array[index]) ? null : array[index]) : null;
     }
 
+    /**
+     * 1. value의 값이 없을 경우 set 하지 않는다.
+     * @param value
+     * @param setter
+     * @param <T>
+     */
     private <T> void updateAttributeIfNotNull(String value, Consumer<String> setter) {
         if (value != null && !Objects.equals(value, "null")) {
             setter.accept(value);
