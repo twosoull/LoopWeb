@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.util.List;
 
 @Controller
-@RequiredArgsConstructor
+@RequiredArgsConstructor//
 public class WorkController {
 
     private final WorkService workService;
 
+    /**
+     * 1. work 페이지 - 모든 컨텐츠 다 보여주기
+     * @return
+     */
     @GetMapping("/work/init")
     public ResponseEntity<Message> list(){
         List<WorkDto> workDtos = workService.findAllByOrderByRegDateDesc();
