@@ -43,6 +43,7 @@ public class ContactController {
         }
 
         //메일 보내는 로직 필요
+        //커밋 때는 암호거려야한다. 프로퍼티에 넣고 커밋하지 않기
 
         Message message = new Message();
         message.setMessage("저장에 성공했습니다.");
