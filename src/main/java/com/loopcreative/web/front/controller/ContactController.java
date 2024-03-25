@@ -8,6 +8,7 @@ import com.loopcreative.web.form.ContactForm;
 import com.loopcreative.web.front.service.ContactService;
 import com.loopcreative.web.util.FileUtil;
 import com.loopcreative.web.util.Message;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,22 +29,21 @@ public class ContactController {
     /**
      * 1. Contact 저장 및 Files 한번에 저장
      * 2. 파일 저장 시에 등록된 관리자의 메일로 메일이 넘어간다.(파일 함께)
+     *
      * @param contactForm
      * @return
      */
     @PostMapping("/contact/save")
-    public ResponseEntity<Message> save(@Valid ContactForm contactForm){
+    public ResponseEntity<Message> save(@Valid ContactForm contactForm) throws MessagingException {
         Contact saveContact = contactService.save(contactForm);
         ContactDto contactDto = new ContactDto(saveContact);
         String cd = "contact_file";
         Files files = fileUtil.uploadFile(contactForm.getMultipartFile()); //파일이 없을 경우 null 반환
-        if(files != null){
-            fileService.save(files,cd);
+        if (files != null) {
+            fileService.save(files, cd);
             fileService.filesContactIdUpdate(saveContact.getId(), files.getId(), cd);
         }
-
-        //메일 보내는 로직 필요
-        //커밋 때는 암호거려야한다. 프로퍼티에 넣고 커밋하지 않기
+        contactService.sendMailContact(contactForm, files);
 
         Message message = new Message();
         message.setMessage("저장에 성공했습니다.");
@@ -51,4 +51,17 @@ public class ContactController {
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
 
+    @PostMapping("/contact/mailtest")
+    public ResponseEntity<Message> asd(ContactForm contactForm) throws MessagingException {
+        Message message = new Message();
+        message.setMessage("저장에 성공했습니다.");
+
+
+        contactService.sendMailContact(contactForm, new Files());
+        return new ResponseEntity<Message>(message, HttpStatus.OK);
+
+    }
+
 }
+
+
