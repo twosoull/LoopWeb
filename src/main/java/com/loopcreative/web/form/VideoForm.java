@@ -11,7 +11,7 @@ public class VideoForm {
     private String[] videoTitle;
     private String[] videoContent;
     private String[] videoType;
-    private Integer[] ord;
+    private Integer[] videoOrd;
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
 }

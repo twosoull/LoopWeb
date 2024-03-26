@@ -24,7 +24,7 @@ public class MainController {
      * 1. 메인은 Work를 20개씩 보여지게끔 되어있다.
      * @return
      */
-    @GetMapping("/")
+    @GetMapping("/main")
     public ResponseEntity<Message> Main(){
         List<WorkDto> workDtos = workService.findFirst20ByOrderByRegDateDesc();
 

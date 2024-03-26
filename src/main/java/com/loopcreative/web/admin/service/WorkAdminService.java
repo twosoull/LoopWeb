@@ -172,9 +172,9 @@ public class WorkAdminService {
      * @param work
      */
     private void workAddVideo(VideoForm videoForm, Work work) {
-        if (videoForm.getOrd() != null) {
-            for (int i = 0; i < videoForm.getOrd().length; i++) {
-                Integer ord = videoForm.getOrd()[i];
+        if (videoForm.getVideoOrd() != null) {
+            for (int i = 0; i < videoForm.getVideoOrd().length; i++) {
+                Integer ord = videoForm.getVideoOrd()[i];
                 String url = getValueOrNull(videoForm.getVideoUrl(), i);
                 String type = getValueOrNull(videoForm.getVideoType(), i);
                 String title = getValueOrNull(videoForm.getVideoTitle(), i);

@@ -35,7 +35,7 @@ public class UserAdminService {
         UserDto findUser = userAdminRepository.findByUserId(userForm.getUserId())
                 .orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_USER)).chageDto();
 
-        boolean result = passwordEncoder.matches(findUser.getUserPw(), userForm.getUserPw());
+        boolean result = passwordEncoder.matches(userForm.getUserPw(),findUser.getUserPw());
         if(!result){
             throw new RestApiException(UserErrorCode.FAIL_USER);
         }

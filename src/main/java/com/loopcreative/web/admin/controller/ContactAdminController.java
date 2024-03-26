@@ -42,7 +42,7 @@ public class ContactAdminController {
      * @return ResponseEntity<Message>
      */
     @GetMapping("/admin/contact/findId")
-    public ResponseEntity<Message> findContactId(@RequestParam(name = "contact_id") Long id){
+    public ResponseEntity<Message> findContactId(@RequestParam(name = "contactId") Long id){
         Contact findContact= contactAdminService.findContactId(id);
         Message message = new Message(findContact);
 
@@ -55,7 +55,7 @@ public class ContactAdminController {
      * @return ResponseEntity<Message>
      */
     @PostMapping("/admin/contact/delete")
-    public ResponseEntity<Message> delete(@RequestParam(name = "contact_id") Long id){
+    public ResponseEntity<Message> delete(@RequestParam(name = "contactId") Long id){
         Long deleteId = contactAdminService.delete(id);
         Message message = new Message(deleteId);
 

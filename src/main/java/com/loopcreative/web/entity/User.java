@@ -43,6 +43,7 @@ public class User {
 
         dto.setId(this.id);
         dto.setUserId(this.userId);
+        dto.setUserPw(this.userPw);
         return dto;
     }
 }

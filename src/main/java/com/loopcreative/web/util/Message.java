@@ -11,6 +11,8 @@ public class Message {
     private Object data;
 
     public Message() {
+        this.status = HttpStatus.OK;
+        this.message = "success";
     }
 
     public Message(Object obejct) {
