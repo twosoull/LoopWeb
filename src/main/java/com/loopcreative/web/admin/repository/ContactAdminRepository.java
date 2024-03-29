@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ContactAdminRepository extends JpaRepository<Contact,Long> {
 
-    @Query("select c from Contact c left join fetch c.files where c.useYn = :useYn")
+    @Query("select c from Contact c left join fetch c.files where c.useYn = :useYn order by regDate desc")
     Page<Contact> findAllFetchFiles(Pageable pageable, @Param("useYn") String useYn);
 }

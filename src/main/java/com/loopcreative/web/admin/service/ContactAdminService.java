@@ -41,9 +41,9 @@ public class ContactAdminService {
      * @param id
      * @return
      */
-    public Contact findContactId(Long id){
+    public ContactDto findContactId(Long id){
         return contactAdminRepository.findById(id)
-                .orElseThrow(() ->new RestApiException(UserErrorCode.NO_RESULT));
+                .orElseThrow(() ->new RestApiException(UserErrorCode.NO_RESULT)).changeDto();
     }
 
     /**

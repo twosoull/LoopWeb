@@ -27,6 +27,9 @@ public class ContactDto {
     private String contactVideoLength;
     private String contactBudget;
     private String useYn;
+    private String contactContent;
+    private String orgFileName;
+    private String saveFileName;
     private LocalDateTime regDate;
 
     public ContactDto(Contact c){
@@ -40,6 +43,10 @@ public class ContactDto {
         this.contactProjectSchedule = c.getContactProjectSchedule();
         this.contactVideoLength = c.getContactVideoLength();
         this.contactBudget = c.getContactBudget();
+        this.contactContent = c.getContactContent();
+
+        this.orgFileName = c.getFiles() != null ? c.getFiles().getOrgName() : "";
+        this.saveFileName = c.getFiles() != null ? c.getFiles().getSaveName() : "";
         this.useYn = c.getUseYn();
         this.regDate = c.getRegDate();
     }

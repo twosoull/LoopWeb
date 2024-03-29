@@ -5,6 +5,7 @@ import com.loopcreative.web.error.RestApiException;
 import com.loopcreative.web.error.UserErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,6 +94,7 @@ public class FileUtil {
      * @param fileName
      * @param response
      */
+    /*
     public void downloadFile(String fileName , HttpServletResponse response){
         File f = new File(SAVEDIR + "/", fileName);
         try {
@@ -113,6 +115,27 @@ public class FileUtil {
             throw new RestApiException(UserErrorCode.FAIL_FILE_DOWNLOAD);
         }
     }
+    */
+    public void downloadFile(String fileName , HttpServletResponse response){
+        File f = new File(SAVEDIR + "/", fileName);
+        try {
+            // file 다운로드 설정
+            response.setContentType("application/download");
+            response.setContentLength((int)f.length());
+            response.setHeader("Content-disposition", "attachment;filename=\"" + fileName + "\"");
+            response.setHeader("Content-Transfer-Encoding", "binary");
+            response.setHeader( "Access-Control-Expose-Headers","Content-Disposition");
+
+            byte[] fileByte =  java.nio.file.Files.readAllBytes( new File(SAVEDIR + "/", fileName).toPath());
+            response.getOutputStream().write(fileByte);
+            response.getOutputStream().flush();
+            response.getOutputStream().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RestApiException(UserErrorCode.FAIL_FILE_DOWNLOAD);
+        }
+    }
+
 
     /**
      * 1. 물리적인 파일삭제이며 완료는 True 실패는 False 반환

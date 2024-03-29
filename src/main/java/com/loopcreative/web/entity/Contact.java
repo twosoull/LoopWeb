@@ -1,10 +1,12 @@
 package com.loopcreative.web.entity;
 
+import com.loopcreative.web.dto.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name="tbl_contact")
@@ -26,6 +28,7 @@ public class Contact extends BaseEntity{
     private String contactProjectSchedule;
     private String contactVideoLength;
     private String contactBudget;
+    private String contactContent;
     private String useYn;
 
 
@@ -117,5 +120,17 @@ public class Contact extends BaseEntity{
         return files;
     }
 
+    public String getContactContent() {
+        return contactContent;
+    }
 
+    public void setContactContent(String contactContent) {
+        this.contactContent = contactContent;
+    }
+
+    public ContactDto changeDto(){
+        ContactDto cd = new ContactDto(this);
+
+        return cd;
+    }
 }

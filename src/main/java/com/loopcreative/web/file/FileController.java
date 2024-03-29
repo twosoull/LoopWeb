@@ -8,10 +8,17 @@ import com.loopcreative.web.util.Message;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +28,7 @@ public class FileController {
     private final FileUtil fileUtil;
     private final FileService fileService;
 
+    private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main/resources/static/upload/file";
     /**
      * 1. 파일 업로드이며 연관관계 설정 이전에 사용된다.
      *    (parent_no는 각각 엔티티(Work, Contact)에서 생성시 업데이트 된다.
@@ -62,9 +70,29 @@ public class FileController {
      * @param fileName
      * @param response
      */
-    @PostMapping("/fileDownload")
-    public void downloadFile(@RequestParam("fileName")String fileName, HttpServletResponse response){
-        fileUtil.downloadFile(fileName,response);
+    @GetMapping("/fileDownload")
+    public ResponseEntity<byte[]> downloadFile(@RequestParam("fileName")String fileName, HttpServletResponse response) throws IOException {
+        File file = new File(SAVEDIR + "/", fileName);
+        log.info("dsad");
+        byte[] fileContent = new byte[(int) file.length()];
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            fis.read(fileContent);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Tika tika = new Tika();
+        // MIME 타입 설정
+        String mimeType = tika.detect(file); // Apache Tika를 사용하여 MIME 타입 감지
+        MediaType mediaType = MediaType.parseMediaType(mimeType);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=" + fileName)
+                .contentType(mediaType) // MIME 타입 설정
+                .body(fileContent);
 
     }
 }
