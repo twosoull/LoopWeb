@@ -82,8 +82,24 @@ public class WorkAdminService {
         workForm.setUseYn("Y");
         Work work = workForm.toEntity();
 
-        workAddVideo(videoForm, work);
-        workAddCredits(creditsForm, work);
+        //workAddVideo(videoForm, work); 배열로 받을 시 진행
+        //workAddCredits(creditsForm, work); 배열로 받을 시 진행
+
+        for(int i = 0; i < creditsForm.getCreditsForms().size(); i++){
+            String job = creditsForm.getCreditsForms().get(i).getCreditsJob();
+            String name = creditsForm.getCreditsForms().get(i).getCreditsName();
+            work.addCredits(new Credits(i,job,name));
+        }
+
+        for(int i = 0; i < videoForm.getVideoForms().size(); i++){
+            String url = videoForm.getVideoForms().get(i).getVideoUrl();
+            String title = videoForm.getVideoForms().get(i).getVideoTitle();
+            String content = videoForm.getVideoForms().get(i).getVideoContent();
+            String type = videoForm.getVideoForms().get(i).getVideoType();
+            Integer ord = videoForm.getVideoForms().get(i).getVideoOrd();
+
+            work.addVideo(new Video(url, title, content, type, ord));
+        }
 
         Work saveWork = workAdminRepository.save(work);
         alreadyFileParentsIdUpdate(workForm, saveWork);
@@ -101,6 +117,7 @@ public class WorkAdminService {
      * @param videoForm
      * @return
      */
+    /*
     @Transactional
     public WorkDto update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
         Work findWork = workAdminRepository.findById(workForm.getWorkId())
@@ -134,7 +151,7 @@ public class WorkAdminService {
 
         return null;
     }
-
+*/
     /**
      * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
      * 2. Work 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
@@ -154,6 +171,7 @@ public class WorkAdminService {
      * @param creditsForm
      * @param work
      */
+    /*
     private void workAddCredits(CreditsForm creditsForm, Work work) {
         if(creditsForm.getCreditsOrd() != null){
             for(int i = 0; i < creditsForm.getCreditsOrd().length; i++){
@@ -165,12 +183,13 @@ public class WorkAdminService {
             }
         }
     }
-
+*/
     /**
      * 1. Work 객체에 Video 객체 set
      * @param videoForm
      * @param work
      */
+    /*
     private void workAddVideo(VideoForm videoForm, Work work) {
         if (videoForm.getVideoOrd() != null) {
             for (int i = 0; i < videoForm.getVideoOrd().length; i++) {
@@ -184,7 +203,7 @@ public class WorkAdminService {
             }
         }
     }
-
+*/
     /**
      * 1. 문자열 "null"이거나 값이 없을 경우에 null 반환
      * @param array

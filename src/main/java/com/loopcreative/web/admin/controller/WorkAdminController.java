@@ -8,6 +8,7 @@ import com.loopcreative.web.file.repository.FileRepository;
 import com.loopcreative.web.form.CreditsForm;
 import com.loopcreative.web.form.VideoForm;
 import com.loopcreative.web.form.WorkForm;
+import com.loopcreative.web.form.WorkSaveRequest;
 import com.loopcreative.web.util.Message;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -24,14 +25,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 public class WorkAdminController {
@@ -74,15 +73,16 @@ public class WorkAdminController {
     /**
      * 1. Work, Credits, Video 한번에 반환
      * @param workForm
-     * @param creditsForm
+     * @param
      * @param videoForm
      * @return
      */
     @PostMapping("/admin/work/save")
-    public ResponseEntity<Message> save(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm){ //valid 처리 필요
-        WorkDto workDto = workAdminService.save(workForm, creditsForm, videoForm);
+    public ResponseEntity<Message> save(@RequestBody WorkSaveRequest workSaveRequest){ //valid 처리 필요
+        //WorkDto workDto = workAdminService.save(workForm, creditsForm, videoForm);
 
-        Message message = new Message(workDto);
+        //Message message = new Message(workDto);
+        Message message = new Message();
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
@@ -95,9 +95,10 @@ public class WorkAdminController {
      */
     @PostMapping("/admin/work/update")
     public ResponseEntity<Message> update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm){ //valid 처리 필요
-        WorkDto workDto = workAdminService.update(workForm, creditsForm, videoForm);
+        //WorkDto workDto = workAdminService.update(workForm, creditsForm, videoForm);
 
-        Message message = new Message(workDto);
+        //Message message = new Message(workDto);
+        Message message = new Message();
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
