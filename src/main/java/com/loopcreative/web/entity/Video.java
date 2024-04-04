@@ -3,6 +3,7 @@ package com.loopcreative.web.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="tbl_video")
@@ -15,6 +16,10 @@ public class Video  extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "work_no")
     private Work work;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_no")
+    private List<Files> files;
 
     private String videoUrl;
     private String videoTitle;
@@ -89,5 +94,11 @@ public class Video  extends BaseEntity{
         this.ord = ord;
     }
 
+    public List<Files> getFiles() {
+        return files;
+    }
 
+    public void setFiles(List<Files> files) {
+        this.files = files;
+    }
 }

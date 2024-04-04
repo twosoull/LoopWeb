@@ -19,7 +19,8 @@ public enum UserErrorCode implements ErrorCode{
     NOT_USER(HttpStatus.OK.value(), HttpStatus.OK,"로그인이 필요한 메뉴입니다."),
     FAIL_FILE_REMOVE(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"파일 삭제에 실패했습니다."),
     FAIL_FILE_DOWNLOAD(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"파일 다운로드에 실패했습니다."),
-    FAIL_MAIL_SEND(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"메일 전송에 실패했습니다.");
+    FAIL_MAIL_SEND(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST,"메일 전송에 실패했습니다."),
+    FAIL_REMOVE_FILE_NO_RESULT(HttpStatus.BAD_REQUEST.value(),HttpStatus.BAD_REQUEST, "삭제할 파일 정보를 찾을 수 없습니다."),;
 
 
     private final int status;

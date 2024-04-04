@@ -26,7 +26,6 @@ public class VideoForm {
     private Integer videoOrd;
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
-
     private List<VideoForm> videoForms;
 
 

@@ -98,9 +98,24 @@ public class FileService {
      * @param parentsId
      * @param id
      */
-    public void filesWorkIdUpdate( Long parentsId,Long id){
+    public void filesWorkIdUpdate( Long parentsId,Long id, Long videoId,Integer tmplType,Integer ord,Integer picOrd){
         String useYn = "Y";
-        fileRepository.updateFilesByWorkIdAndIdAndCd(parentsId,id, useYn);
+        fileRepository.updateFilesByWorkIdAndIdAndCd(parentsId,id,videoId,
+                useYn,tmplType,ord,picOrd);
     }
 
+    public void filesThumbnailWorkIdUpdate( Long parentsId,Long id, String cd) {
+        String useYn = "Y";
+        fileRepository.updateFilesThumbnailByWorkIdAndIdAndCd(parentsId,id, useYn,cd);
+    }
+
+    public void deleteById(Long removeFileId){
+        Files files = fileRepository.findById(removeFileId).orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_REMOVE_FILE_NO_RESULT));
+        boolean removeResult = fileUtil.removeFile(files.getFilePath());
+        if(removeResult){
+            fileRepository.deleteById(removeFileId);
+        }else{
+            throw new RestApiException(UserErrorCode.FAIL_FILE_REMOVE);
+        }
+    }
 }

@@ -14,6 +14,10 @@ public class Files {
     @JoinColumn(name = "contact_no")
     private Contact contact;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_no")
+    private Video video;
+
     private Integer ord; //전체순서
     private String filePath;
     private String orgName;
@@ -126,5 +130,21 @@ public class Files {
 
     public void setUseYn(String useYn) {
         this.useYn = useYn;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public Video getVideo() {
+        return video;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
     }
 }

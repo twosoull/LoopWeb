@@ -12,6 +12,7 @@ import com.loopcreative.web.error.RestApiException;
 import com.loopcreative.web.error.UserErrorCode;
 import com.loopcreative.web.file.service.FileService;
 import com.loopcreative.web.form.CreditsForm;
+import com.loopcreative.web.form.FileForm;
 import com.loopcreative.web.form.VideoForm;
 import com.loopcreative.web.form.WorkForm;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -73,99 +75,96 @@ public class WorkAdminService {
      * 1. Work, Credits, Video는 함께 저장된다.
      * 2. Credits, Video 는 문자열 null 데이터가 오는 경우 순서에 밀리지 않고 문자열이 아닌 null로 변환하여 저장
      * @param workForm
-     * @param creditsForm
-     * @param videoForm
+     * @param creditsForms
+     * @param videoForms
+     * @param saveFileForms
+     * @param thumbnailFileForm
+     * @param removeFileForms
      * @return
      */
     @Transactional
-    public WorkDto save(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
+    public WorkDto save(WorkForm workForm, List<CreditsForm> creditsForms, List<VideoForm> videoForms, List<FileForm> saveFileForms, FileForm thumbnailFileForm, List<Long> removeFileForms){
         workForm.setUseYn("Y");
         Work work = workForm.toEntity();
 
         //workAddVideo(videoForm, work); 배열로 받을 시 진행
         //workAddCredits(creditsForm, work); 배열로 받을 시 진행
 
-        for(int i = 0; i < creditsForm.getCreditsForms().size(); i++){
-            String job = creditsForm.getCreditsForms().get(i).getCreditsJob();
-            String name = creditsForm.getCreditsForms().get(i).getCreditsName();
-            work.addCredits(new Credits(i,job,name));
+        for(int i = 0; i < creditsForms.size(); i++){
+                String job = creditsForms.get(i).getCreditsJob();
+                String name = creditsForms.get(i).getCreditsName();
+                work.addCredits(new Credits(i,job,name));
         }
 
-        for(int i = 0; i < videoForm.getVideoForms().size(); i++){
-            String url = videoForm.getVideoForms().get(i).getVideoUrl();
-            String title = videoForm.getVideoForms().get(i).getVideoTitle();
-            String content = videoForm.getVideoForms().get(i).getVideoContent();
-            String type = videoForm.getVideoForms().get(i).getVideoType();
-            Integer ord = videoForm.getVideoForms().get(i).getVideoOrd();
-
-            work.addVideo(new Video(url, title, content, type, ord));
+        for(int i = 0; i < videoForms.size(); i++){
+                String url = videoForms.get(i).getVideoUrl();
+                String title = videoForms.get(i).getVideoTitle();
+                String content = videoForms.get(i).getVideoContent();
+                String type = videoForms.get(i).getVideoType();
+                Integer ord = videoForms.get(i).getVideoOrd();
+                work.addVideo(new Video(url, title, content, type, ord));
         }
 
         Work saveWork = workAdminRepository.save(work);
-        alreadyFileParentsIdUpdate(workForm, saveWork);
+
+        // ***정보 넣을 때에 videoId 찾아서 넣는 로직 추가
+        for(FileForm fileForm : saveFileForms){
+            for(Video video : saveWork.getVideos()){
+                if(fileForm.getOrd() == video.getOrd()){
+                    fileForm.setVideoId(video.getId());
+                }
+            }
+        }
+
+        //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
+        alreadyFileParentsIdUpdate(saveFileForms, saveWork);
+
+        //썸네일사진 정보 및 부모키 업데이트
+        alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,saveWork);
+        //삭제 파일 로직
+        fileDelete(removeFileForms);
 
         WorkDto workDto = saveWork.changeDto();
         return workDto;
     }
 
-
-    /**
-     * 1. Work, Credits, Video 함께 업데이트
-     * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
-     * @param workForm
-     * @param creditsForm
-     * @param videoForm
-     * @return
-     */
-    /*
-    @Transactional
-    public WorkDto update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
-        Work findWork = workAdminRepository.findById(workForm.getWorkId())
-                .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-
-        updateAttributeIfNotNull(workForm.getWorkTitle(), value -> findWork.setWorkTitle(value));
-        updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
-        updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
-
-        if(creditsForm.getCreditsId() != null){
-            for(int i = 0; i < creditsForm.getCreditsId().length; i++){
-                Credits findCredits = creditsAdminRepository.findById(creditsForm.getCreditsId()[i])
-                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsJob(),i), value -> findCredits.setJob(value));
-                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsName(),i), value -> findCredits.setName(value));
-            }
-        }
-
-        if (videoForm.getVideoId() != null) {
-            for (int i = 0; i < videoForm.getVideoId().length; i++) {
-                Video findVideo = videoAdminRepository.findById(videoForm.getVideoId()[i])
-                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoUrl(),i), value -> findVideo.setVideoUrl(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoType(),i) , value -> findVideo.setVideoType(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoTitle(),i) , value -> findVideo.setVideoTitle(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoContent(),i) , value -> findVideo.setVideoContent(value));
-            }
-        }
-
-
-
-        return null;
-    }
-*/
     /**
      * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
      * 2. Work 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
-     * @param workForm
+     * @param fileForms
      * @param saveWork
      */
-    private void alreadyFileParentsIdUpdate(WorkForm workForm, Work saveWork) {
-        if(workForm.getFileId() != null){
-            for (Long fileId : workForm.getFileId()) {
-                fileService.filesWorkIdUpdate(saveWork.getId(),fileId);
+    private void alreadyFileParentsIdUpdate(List<FileForm> fileForms, Work saveWork) {
+        if(fileForms != null){
+            for (FileForm fileform : fileForms) {
+                fileService.filesWorkIdUpdate(saveWork.getId(),fileform.getId(), fileform.getVideoId()
+                        ,fileform.getTmplType(),fileform.getOrd(), fileform.getPicOrd());
+
             }
         }
     }
+    /**
+     * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
+     * 2. Work 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
+     * @param thumbnailFileForm
+     * @param saveWork
+     */
+    private void alreadyThumbnailFileParentsIdUpdate(FileForm thumbnailFileForm, Work saveWork) {
+        if(thumbnailFileForm != null){
+                fileService.filesThumbnailWorkIdUpdate(saveWork.getId(),thumbnailFileForm.getId(),thumbnailFileForm.getCd());
 
+        }
+    }
+
+    /**
+     * 1. 파일 삭제
+     * @param removeFileForms
+     */
+    private void fileDelete(List<Long> removeFileForms) {
+        for (Long removeFileId : removeFileForms) {
+            fileService.deleteById(removeFileId);
+        }
+    }
     /**
      * 1. Work 객체에 Credits 객체 set
      * @param creditsForm
@@ -225,5 +224,47 @@ public class WorkAdminService {
             setter.accept(value);
         }
     }
+    /**
+     * 1. Work, Credits, Video 함께 업데이트
+     * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
+     * @param workForm
+     * @param creditsForm
+     * @param videoForm
+     * @return
+     */
+    /*
+    @Transactional
+    public WorkDto update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
+        Work findWork = workAdminRepository.findById(workForm.getWorkId())
+                .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
 
+        updateAttributeIfNotNull(workForm.getWorkTitle(), value -> findWork.setWorkTitle(value));
+        updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
+        updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
+
+        if(creditsForm.getCreditsId() != null){
+            for(int i = 0; i < creditsForm.getCreditsId().length; i++){
+                Credits findCredits = creditsAdminRepository.findById(creditsForm.getCreditsId()[i])
+                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
+                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsJob(),i), value -> findCredits.setJob(value));
+                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsName(),i), value -> findCredits.setName(value));
+            }
+        }
+
+        if (videoForm.getVideoId() != null) {
+            for (int i = 0; i < videoForm.getVideoId().length; i++) {
+                Video findVideo = videoAdminRepository.findById(videoForm.getVideoId()[i])
+                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
+                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoUrl(),i), value -> findVideo.setVideoUrl(value));
+                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoType(),i) , value -> findVideo.setVideoType(value));
+                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoTitle(),i) , value -> findVideo.setVideoTitle(value));
+                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoContent(),i) , value -> findVideo.setVideoContent(value));
+            }
+        }
+
+
+
+        return null;
+    }
+*/
 }

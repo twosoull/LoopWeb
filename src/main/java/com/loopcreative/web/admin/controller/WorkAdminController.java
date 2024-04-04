@@ -49,7 +49,7 @@ public class WorkAdminController {
      * @return
      */
     @GetMapping("/admin/work/list")
-    public ResponseEntity<Message> list(@PageableDefault(page = 0, size = 10, sort = "regDate", direction = Sort.Direction.ASC)
+    public ResponseEntity<Message> list(@PageableDefault(page = 0, size = 10, sort = "regDate", direction = Sort.Direction.DESC)
                                                     Pageable pageable){
         Page<WorkDto> works = workAdminService.findWorkAll(pageable);
 
@@ -72,14 +72,18 @@ public class WorkAdminController {
 
     /**
      * 1. Work, Credits, Video 한번에 반환
-     * @param workForm
-     * @param
-     * @param videoForm
+     * @param workSaveRequest
      * @return
      */
     @PostMapping("/admin/work/save")
     public ResponseEntity<Message> save(@RequestBody WorkSaveRequest workSaveRequest){ //valid 처리 필요
-        //WorkDto workDto = workAdminService.save(workForm, creditsForm, videoForm);
+        WorkDto workDto = workAdminService.save(
+                workSaveRequest.getWorkForm(),
+                workSaveRequest.getCreditsForms(),
+                workSaveRequest.getVideoForms(),
+                workSaveRequest.getSaveFileForms(),
+                workSaveRequest.getThumbnailFileForm(),
+                workSaveRequest.getRemoveFileForms());
 
         //Message message = new Message(workDto);
         Message message = new Message();
