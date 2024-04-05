@@ -18,7 +18,7 @@ public class CreditsForm extends BaseEntity {
     //private String[] creditsName;
     //private Integer[] creditsOrd;
 
-    private Long creditsId;
+    private Long id;
     private String creditsJob;
     private String creditsName;
     private Integer creditsOrd;

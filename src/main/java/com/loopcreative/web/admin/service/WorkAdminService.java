@@ -22,9 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Service
@@ -107,14 +105,6 @@ public class WorkAdminService {
 
         Work saveWork = workAdminRepository.save(work);
 
-        // ***정보 넣을 때에 videoId 찾아서 넣는 로직 추가
-        for(FileForm fileForm : saveFileForms){
-            for(Video video : saveWork.getVideos()){
-                if(fileForm.getOrd() == video.getOrd()){
-                    fileForm.setVideoId(video.getId());
-                }
-            }
-        }
 
         //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
         alreadyFileParentsIdUpdate(saveFileForms, saveWork);
@@ -228,21 +218,112 @@ public class WorkAdminService {
      * 1. Work, Credits, Video 함께 업데이트
      * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
      * @param workForm
-     * @param creditsForm
-     * @param videoForm
+     * @param creditsForms
+     * @param videoForms
+     * @param saveFileForms
+     * @param thumbnailFileForm
+     * @param removeFileForms
+     * @param removeVideoForms
+     * @param removeCreditsForms
      * @return
      */
-    /*
     @Transactional
-    public WorkDto update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm) {
+    public WorkDto update(WorkForm workForm, List<CreditsForm> creditsForms, List<VideoForm> videoForms, List<FileForm> saveFileForms, FileForm thumbnailFileForm, List<Long> removeFileForms, List<Long> removeVideoForms, List<Long> removeCreditsForms) {
         Work findWork = workAdminRepository.findById(workForm.getWorkId())
                 .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
 
+        //1. work
         updateAttributeIfNotNull(workForm.getWorkTitle(), value -> findWork.setWorkTitle(value));
         updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
         updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
 
-        if(creditsForm.getCreditsId() != null){
+        //썸네일사진 정보 및 부모키 업데이트
+        //alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
+
+        //2. video
+        //del 지우기
+        if(removeVideoForms != null && !removeVideoForms.isEmpty()){
+            for (Long id : removeVideoForms) {
+                videoAdminRepository.deleteById(id);
+
+            }
+        }
+        //기존에 있는 아이디면 내용수정
+        if(videoForms != null && !videoForms.isEmpty()){
+            for (VideoForm videoForm : videoForms) {
+                Optional<Video> findVideoOptional = videoAdminRepository.findById(videoForm.getId());
+
+                if(findVideoOptional.isEmpty()){
+                //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
+                    String url = videoForm.getVideoUrl();
+                    String title = videoForm.getVideoTitle();
+                    String content = videoForm.getVideoContent();
+                    String type = videoForm.getVideoType();
+                    Integer ord = videoForm.getVideoOrd();
+                    findWork.addVideo(new Video(url, title, content, type, ord));
+                }else{
+                    Video findVideo = findVideoOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
+                    findVideo.setVideoUrl(videoForm.getVideoUrl());
+                    findVideo.setVideoTitle(videoForm.getVideoTitle());
+                    findVideo.setVideoContent(videoForm.getVideoContent());
+                    findVideo.setVideoType(videoForm.getVideoType());
+                    findVideo.setOrd(videoForm.getVideoOrd());
+                }
+            }
+        }
+        //3. file
+        //file del 지우기
+        // ***정보 넣을 때에 videoId 찾아서 넣는 로직 추가
+        for(FileForm fileForm : saveFileForms){
+            for(Video video : findWork.getVideos()){
+                if(fileForm.getOrd() == video.getOrd()){
+                    fileForm.setVideoId(video.getId());
+                }
+            }
+        }
+        //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
+        alreadyFileParentsIdUpdate(saveFileForms, findWork);
+
+        //삭제 파일 로직
+        fileDelete(removeFileForms);
+
+        //del 지우기
+        if(removeCreditsForms != null && !removeCreditsForms.isEmpty()){
+            for (Long id : removeCreditsForms) {
+                creditsAdminRepository.deleteById(id);
+            }
+        }
+
+        //4. credits
+        //credits 기존 id가 0이면 새로 저장
+        //기존에 있는 아이디면 내용수정
+        if(creditsForms != null){
+            for (int i=0; i < creditsForms.size(); i++) {
+                Optional<Credits> findCreditsOptional = creditsAdminRepository.findById(creditsForms.get(i).getId());
+
+                if(findCreditsOptional.isEmpty()){
+                    //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
+                    String job = creditsForms.get(i).getCreditsJob();
+                    String name = creditsForms.get(i).getCreditsName();
+                    findWork.addCredits(new Credits(i,job,name));
+                }else{
+                    Credits findCredits = findCreditsOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
+                    findCredits.setJob(creditsForms.get(i).getCreditsJob());
+                    findCredits.setName(creditsForms.get(i).getCreditsName());
+                }
+            }
+        }
+        //다시 부르기
+        List<Credits> findCredits = findWork.getCredits();
+        Collections.sort(findCredits, Comparator.comparingLong(Credits::getId));
+        //id 값 순서로 재정렬
+        for(int i=1; i<findCredits.size()+1; i++){
+            findCredits.get(i).setOrd(i);
+        }
+
+
+/*
+   장    if(creditsForm.getCreditsId() != null){
             for(int i = 0; i < creditsForm.getCreditsId().length; i++){
                 Credits findCredits = creditsAdminRepository.findById(creditsForm.getCreditsId()[i])
                         .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
@@ -262,9 +343,9 @@ public class WorkAdminService {
             }
         }
 
-
+*/
 
         return null;
     }
-*/
+
 }

@@ -92,17 +92,23 @@ public class WorkAdminController {
 
     /**
      * 1. Work, Credits, Video 한번에 수정
-     * @param workForm
-     * @param creditsForm
-     * @param videoForm
+     * @param workSaveRequest
      * @return
      */
     @PostMapping("/admin/work/update")
-    public ResponseEntity<Message> update(WorkForm workForm, CreditsForm creditsForm, VideoForm videoForm){ //valid 처리 필요
-        //WorkDto workDto = workAdminService.update(workForm, creditsForm, videoForm);
+    public ResponseEntity<Message> update(@RequestBody WorkSaveRequest workSaveRequest){ //valid 처리 필요
+        WorkDto workDto = workAdminService.update(
+                workSaveRequest.getWorkForm(),
+                workSaveRequest.getCreditsForms(),
+                workSaveRequest.getVideoForms(),
+                workSaveRequest.getSaveFileForms(),
+                workSaveRequest.getThumbnailFileForm(),
+                workSaveRequest.getRemoveFileForms(),
+                workSaveRequest.getRemoveVideoForms(),
+                workSaveRequest.getRemoveCreditsForms());
 
-        //Message message = new Message(workDto);
-        Message message = new Message();
+        Message message = new Message(workDto);
+        //Message message = new Message();
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 

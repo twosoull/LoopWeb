@@ -17,7 +17,7 @@ public class VideoForm {
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
     */
-
+    private Long id;
     private Long videoId;
     private String videoUrl;
     private String videoTitle;

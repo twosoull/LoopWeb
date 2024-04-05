@@ -13,4 +13,6 @@ public class WorkSaveRequest {
     private List<FileForm> saveFileForms;
     private FileForm thumbnailFileForm;
     private List<Long> removeFileForms;
+    private List<Long> removeVideoForms;
+    private List<Long> removeCreditsForms;
 }
