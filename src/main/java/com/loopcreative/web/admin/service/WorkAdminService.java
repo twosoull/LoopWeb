@@ -322,7 +322,7 @@ public class WorkAdminService {
         }
 
 
-/*
+/*//
    장    if(creditsForm.getCreditsId() != null){
             for(int i = 0; i < creditsForm.getCreditsId().length; i++){
                 Credits findCredits = creditsAdminRepository.findById(creditsForm.getCreditsId()[i])
