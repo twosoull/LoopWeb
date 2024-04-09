@@ -23,10 +23,10 @@ public class VideoForm {
     private String videoTitle;
     private String videoContent;
     private String videoType;
-    private Integer videoOrd;
+    private Integer ord;
     private LocalDateTime regDt;
     private LocalDateTime udpDt;
     private List<VideoForm> videoForms;
-
+    private FileForm fileForm;
 
 }

@@ -89,8 +89,8 @@ public class WorkAdminService {
         //workAddCredits(creditsForm, work); 배열로 받을 시 진행
 
         for(int i = 0; i < creditsForms.size(); i++){
-                String job = creditsForms.get(i).getCreditsJob();
-                String name = creditsForms.get(i).getCreditsName();
+                String job = creditsForms.get(i).getJob();
+                String name = creditsForms.get(i).getName();
                 work.addCredits(new Credits(i,job,name));
         }
 
@@ -99,7 +99,7 @@ public class WorkAdminService {
                 String title = videoForms.get(i).getVideoTitle();
                 String content = videoForms.get(i).getVideoContent();
                 String type = videoForms.get(i).getVideoType();
-                Integer ord = videoForms.get(i).getVideoOrd();
+                Integer ord = videoForms.get(i).getOrd();
                 work.addVideo(new Video(url, title, content, type, ord));
         }
 
@@ -107,7 +107,7 @@ public class WorkAdminService {
 
 
         //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
-        alreadyFileParentsIdUpdate(saveFileForms, saveWork);
+        alreadyFileWorkAndVideoParentsIdUpdate(saveFileForms, saveWork);
 
         //썸네일사진 정보 및 부모키 업데이트
         alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,saveWork);
@@ -121,12 +121,19 @@ public class WorkAdminService {
     /**
      * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
      * 2. Work 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
+     * 3. Video 저장 시 미리 저장 된 첨부파일의 외래키(work_no)를 업데이트
      * @param fileForms
      * @param saveWork
      */
-    private void alreadyFileParentsIdUpdate(List<FileForm> fileForms, Work saveWork) {
+    private void alreadyFileWorkAndVideoParentsIdUpdate(List<FileForm> fileForms, Work saveWork) {
         if(fileForms != null){
+
             for (FileForm fileform : fileForms) {
+                for(Video video : saveWork.getVideos()){
+                    if(fileform.getOrd() == video.getOrd()){
+                        fileform.setVideoId(video.getId());
+                    }
+                }
                 fileService.filesWorkIdUpdate(saveWork.getId(),fileform.getId(), fileform.getVideoId()
                         ,fileform.getTmplType(),fileform.getOrd(), fileform.getPicOrd());
 
@@ -242,12 +249,23 @@ public class WorkAdminService {
 
         //2. video
         //del 지우기
-        if(removeVideoForms != null && !removeVideoForms.isEmpty()){
-            for (Long id : removeVideoForms) {
-                videoAdminRepository.deleteById(id);
-
+        List<Video> videosToRemove = new ArrayList<>();
+        for (Long id : removeVideoForms) {
+            Iterator<Video> iterator = findWork.getVideos().iterator();
+            while (iterator.hasNext()) {
+                Video video = iterator.next();
+                if (id.equals(video.getId())) {
+                    videosToRemove.add(video);
+                    iterator.remove();
+                }
             }
         }
+
+        // Videos를 삭제
+        for (Video videoToRemove : videosToRemove) {
+            videoAdminRepository.deleteById(videoToRemove.getId());
+        }
+
         //기존에 있는 아이디면 내용수정
         if(videoForms != null && !videoForms.isEmpty()){
             for (VideoForm videoForm : videoForms) {
@@ -259,7 +277,7 @@ public class WorkAdminService {
                     String title = videoForm.getVideoTitle();
                     String content = videoForm.getVideoContent();
                     String type = videoForm.getVideoType();
-                    Integer ord = videoForm.getVideoOrd();
+                    Integer ord = videoForm.getOrd();
                     findWork.addVideo(new Video(url, title, content, type, ord));
                 }else{
                     Video findVideo = findVideoOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
@@ -267,7 +285,7 @@ public class WorkAdminService {
                     findVideo.setVideoTitle(videoForm.getVideoTitle());
                     findVideo.setVideoContent(videoForm.getVideoContent());
                     findVideo.setVideoType(videoForm.getVideoType());
-                    findVideo.setOrd(videoForm.getVideoOrd());
+                    findVideo.setOrd(videoForm.getOrd());
                 }
             }
         }
@@ -281,11 +299,13 @@ public class WorkAdminService {
                 }
             }
         }
-        //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
-        alreadyFileParentsIdUpdate(saveFileForms, findWork);
-
         //삭제 파일 로직
         fileDelete(removeFileForms);
+
+        //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
+        alreadyFileWorkAndVideoParentsIdUpdate(saveFileForms, findWork);
+        //썸네일사진 정보 및 부모키 업데이트
+        alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
 
         //del 지우기
         if(removeCreditsForms != null && !removeCreditsForms.isEmpty()){
@@ -303,13 +323,13 @@ public class WorkAdminService {
 
                 if(findCreditsOptional.isEmpty()){
                     //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
-                    String job = creditsForms.get(i).getCreditsJob();
-                    String name = creditsForms.get(i).getCreditsName();
+                    String job = creditsForms.get(i).getJob();
+                    String name = creditsForms.get(i).getName();
                     findWork.addCredits(new Credits(i,job,name));
                 }else{
                     Credits findCredits = findCreditsOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
-                    findCredits.setJob(creditsForms.get(i).getCreditsJob());
-                    findCredits.setName(creditsForms.get(i).getCreditsName());
+                    findCredits.setJob(creditsForms.get(i).getJob());
+                    findCredits.setName(creditsForms.get(i).getName());
                 }
             }
         }
@@ -317,35 +337,12 @@ public class WorkAdminService {
         List<Credits> findCredits = findWork.getCredits();
         Collections.sort(findCredits, Comparator.comparingLong(Credits::getId));
         //id 값 순서로 재정렬
-        for(int i=1; i<findCredits.size()+1; i++){
-            findCredits.get(i).setOrd(i);
+        for(int i=0; i<findCredits.size(); i++){
+            int j = i + 1;
+            findCredits.get(i).setOrd(j);
         }
 
-
-/*//
-   장    if(creditsForm.getCreditsId() != null){
-            for(int i = 0; i < creditsForm.getCreditsId().length; i++){
-                Credits findCredits = creditsAdminRepository.findById(creditsForm.getCreditsId()[i])
-                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsJob(),i), value -> findCredits.setJob(value));
-                updateAttributeIfNotNull(getValueOrNull(creditsForm.getCreditsName(),i), value -> findCredits.setName(value));
-            }
-        }
-
-        if (videoForm.getVideoId() != null) {
-            for (int i = 0; i < videoForm.getVideoId().length; i++) {
-                Video findVideo = videoAdminRepository.findById(videoForm.getVideoId()[i])
-                        .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoUrl(),i), value -> findVideo.setVideoUrl(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoType(),i) , value -> findVideo.setVideoType(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoTitle(),i) , value -> findVideo.setVideoTitle(value));
-                updateAttributeIfNotNull(getValueOrNull(videoForm.getVideoContent(),i) , value -> findVideo.setVideoContent(value));
-            }
-        }
-
-*/
-
-        return null;
+        return findWork.changeDto();
     }
 
 }
