@@ -25,7 +25,7 @@ public class WorkDto {
     private List<FilesDto> filesList;
     private List<CreditsDto> credits;
     private List<VideoDto> videos;
-
+    private FilesDto files;
 
     public WorkDto() {
     }
@@ -37,5 +37,9 @@ public class WorkDto {
         this.useYn = w.getUseYn();
         this.regDate = w.getRegDate();
         this.updDate = w.getUpdDate();
+    }
+
+    public void setFileToDto(Files f){
+        this.files = new FilesDto(f);
     }
 }

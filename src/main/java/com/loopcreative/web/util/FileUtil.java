@@ -17,9 +17,18 @@ import java.util.UUID;
 @Slf4j
 @Component
 public class FileUtil {
-    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main";
-    private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main/resources/static/upload/file";
-    private final String SAVEROOT = "/resources/static/upload/file";
+
+    //back dev
+    //private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main";
+    //private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main/resources/static/upload/file";
+    //private final String SAVEROOT = "/resources/static/upload/file";
+
+    //front dev
+    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources";
+    private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources/image";
+    private final String SAVEROOT = "/resources/image";
+
+
     //final String SAVEDIR = "C:\\loop\\loopMotionStudio\\LoopMotionStudio\\src\\main\\webapp\\resources\\upload\\images";
     //final String SAVEROOT = "/resources/upload/images";
 

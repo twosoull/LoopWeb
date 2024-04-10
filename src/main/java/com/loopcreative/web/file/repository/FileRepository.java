@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FileRepository extends JpaRepository<Files,Long> {
 
@@ -29,6 +30,10 @@ public interface FileRepository extends JpaRepository<Files,Long> {
                                                 @Param("file_no") Long file_id,
                                                 @Param("use_yn") String use_yn,
                                                 @Param("cd") String cd);
+
+    @Query(value = " select * from tbl_file f where f.cd = :cd and work_no = :work_no", nativeQuery = true)
+    Optional<Files> findByWorkNoAndCd(@Param("work_no") Long work_no,
+                               @Param("cd") String cd);
 
     List<Files> findByUseYn(String useYn);
 }

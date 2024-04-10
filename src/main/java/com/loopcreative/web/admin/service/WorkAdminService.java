@@ -15,6 +15,7 @@ import com.loopcreative.web.form.CreditsForm;
 import com.loopcreative.web.form.FileForm;
 import com.loopcreative.web.form.VideoForm;
 import com.loopcreative.web.form.WorkForm;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class WorkAdminService {
     private final FileService fileService;
     private final CreditsAdminRepository creditsAdminRepository;
     private final VideoAdminRepository videoAdminRepository;
+    private final EntityManager em;
 
     /**
      * 1. Work 리스트 페이징 처리 및 Dto로 반환
@@ -244,11 +246,8 @@ public class WorkAdminService {
         updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
         updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
 
-        //썸네일사진 정보 및 부모키 업데이트
-        //alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
-
         //2. video
-        //del 지우기
+        // Videos를 삭제
         List<Video> videosToRemove = new ArrayList<>();
         for (Long id : removeVideoForms) {
             Iterator<Video> iterator = findWork.getVideos().iterator();
@@ -260,8 +259,6 @@ public class WorkAdminService {
                 }
             }
         }
-
-        // Videos를 삭제
         for (Video videoToRemove : videosToRemove) {
             videoAdminRepository.deleteById(videoToRemove.getId());
         }
@@ -301,30 +298,38 @@ public class WorkAdminService {
         }
         //삭제 파일 로직
         fileDelete(removeFileForms);
-
-        //사진 파일 정보 및 부모키 업데이트 --***** video Id 업데이트 쿼리에 추가
+        //사진 파일 정보 및 부모키 업데이트
         alreadyFileWorkAndVideoParentsIdUpdate(saveFileForms, findWork);
         //썸네일사진 정보 및 부모키 업데이트
         alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
 
-        //del 지우기
-        if(removeCreditsForms != null && !removeCreditsForms.isEmpty()){
-            for (Long id : removeCreditsForms) {
-                creditsAdminRepository.deleteById(id);
+
+        // 4. credits
+        // Credits 삭제
+        List<Credits> creditsToRemove = new ArrayList<>();
+        for (Long id : removeCreditsForms) {
+            Iterator<Credits> iterator = findWork.getCredits().iterator();
+            while (iterator.hasNext()) {
+                Credits credits = iterator.next();
+                if (id.equals(credits.getId())) {
+                    creditsToRemove.add(credits);
+                    iterator.remove();
+                }
             }
         }
-
-        //4. credits
+        for (Credits creditToRemove : creditsToRemove) {
+            creditsAdminRepository.deleteById(creditToRemove.getId());
+        }
         //credits 기존 id가 0이면 새로 저장
         //기존에 있는 아이디면 내용수정
         if(creditsForms != null){
             for (int i=0; i < creditsForms.size(); i++) {
                 Optional<Credits> findCreditsOptional = creditsAdminRepository.findById(creditsForms.get(i).getId());
-
                 if(findCreditsOptional.isEmpty()){
                     //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
                     String job = creditsForms.get(i).getJob();
                     String name = creditsForms.get(i).getName();
+                    Credits credits = new Credits(i, job, name);
                     findWork.addCredits(new Credits(i,job,name));
                 }else{
                     Credits findCredits = findCreditsOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
@@ -333,10 +338,8 @@ public class WorkAdminService {
                 }
             }
         }
-        //다시 부르기
+        //순서 정렬
         List<Credits> findCredits = findWork.getCredits();
-        Collections.sort(findCredits, Comparator.comparingLong(Credits::getId));
-        //id 값 순서로 재정렬
         for(int i=0; i<findCredits.size(); i++){
             int j = i + 1;
             findCredits.get(i).setOrd(j);

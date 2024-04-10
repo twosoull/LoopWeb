@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -28,4 +29,18 @@ public class WorkController {
         Message message = new Message(workDtos);
         return new ResponseEntity<Message>(message, HttpStatus.OK);
     }
+
+    /**
+     * 1. id 값으로 상세 찾고 반환
+     * @param id
+     * @return
+     */
+    @GetMapping("/work/findId")
+    public ResponseEntity<Message> findWorkId(@RequestParam("workId")Long id){
+        WorkDto workDto = workService.findWorkFileById(id);
+
+        Message message = new Message(workDto);
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
 }
