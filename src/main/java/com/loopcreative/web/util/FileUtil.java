@@ -24,7 +24,7 @@ public class FileUtil {
     //private final String SAVEROOT = "/resources/static/upload/file";
 
     //front dev
-    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources";
+    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public";
     private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources/image";
     private final String SAVEROOT = "/resources/image";
 

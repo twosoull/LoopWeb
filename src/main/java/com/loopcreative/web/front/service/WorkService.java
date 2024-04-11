@@ -40,11 +40,18 @@ public class WorkService {
         return collect;
     }
 
-    public List<WorkDto> findAllByOrderByRegDateDesc(){
-        List<Work> works = workRepository.findAllByOrderByRegDateDesc();
+    public List<WorkDto> findAllByUseYnOrderByRegDateDesc(){
+        List<Work> works = workRepository.findAllByUseYnOrderByRegDateDesc("Y");
         workServiceVali.hasList(works);
 
         List<WorkDto> collect = works.stream().map(w -> new WorkDto(w)).collect(Collectors.toList());
+        for (WorkDto work : collect) {
+            Optional<Files> OptionalFiles = fileRepository.findByWorkNoAndCd(work.getId(), "thumb_nail");
+            if(!OptionalFiles.isEmpty()){
+                work.setFileToDto(OptionalFiles.get());
+            }
+        }
+
         return collect;
     }
 

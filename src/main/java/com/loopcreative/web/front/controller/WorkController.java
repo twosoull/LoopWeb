@@ -24,7 +24,7 @@ public class WorkController {
      */
     @GetMapping("/work/init")
     public ResponseEntity<Message> list(){
-        List<WorkDto> workDtos = workService.findAllByOrderByRegDateDesc();
+        List<WorkDto> workDtos = workService.findAllByUseYnOrderByRegDateDesc();
 
         Message message = new Message(workDtos);
         return new ResponseEntity<Message>(message, HttpStatus.OK);

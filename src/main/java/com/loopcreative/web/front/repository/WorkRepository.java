@@ -15,5 +15,5 @@ public interface WorkRepository extends JpaRepository<Work,Long> {
     Optional<Work> findWorkFileById(@Param("id")Long id);
 
     List<Work> findFirst20ByOrderByRegDateDesc();
-    List<Work> findAllByOrderByRegDateDesc();
+    List<Work> findAllByUseYnOrderByRegDateDesc(@Param("useYn") String UseYn);
 }

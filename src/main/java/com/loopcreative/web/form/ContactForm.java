@@ -31,6 +31,8 @@ public class ContactForm {
     @NotBlank(message = "제작 예산을 확인해주세요.")
     private String contactBudget;
 
+    private String contactContent;
+
     private String useYn;
     private LocalDate regDate;
 
@@ -46,7 +48,7 @@ public class ContactForm {
         c.setContactVideoLength(cf.getContactVideoLength());
         c.setContactProjectTitle(cf.getContactProjectTitle());
         c.setFiles(cf.getFiles());
-
+        c.setContactContent(cf.getContactContent());
         return c;
     }
 
