@@ -40,8 +40,10 @@ public class MailUtil {
             helper.setText(content, true);
 
             // Add file attachment
-            File file = new File(filePath);
-            helper.addAttachment(file.getName(), file);
+            if(!"".equals(filePath)){
+                File file = new File(filePath);
+                helper.addAttachment(file.getName(), file);
+            }
         } catch (MessagingException e) {
             new RestApiException(UserErrorCode.FAIL_MAIL_SEND);
             e.printStackTrace();

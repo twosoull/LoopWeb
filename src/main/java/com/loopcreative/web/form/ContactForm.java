@@ -14,21 +14,21 @@ public class ContactForm {
 
     private Files files;
     private MultipartFile multipartFile; /*첨부파일*/
-    @NotBlank(message = "고객 회사명을 입력해주세요.")
+    @NotBlank(message = "회사명을 입력해주세요.")
     private String contactClientCompany;
-    @NotBlank(message = "고객 이름을 입력해주세요.")
+    @NotBlank(message = "성함을 입력해주세요.")
     private String contactClientName;
-    @NotBlank(message = "고객 전화번호를 입력해주세요.")
+    @NotBlank(message = "연락처를 입력해주세요.")
     private String contactClientTel;
-    @NotBlank(message = "고객 메일을 입력해주세요.")
+    @NotBlank(message = "이메일을 입력해주세요.")
     private String contactClientMail;
-    @NotBlank(message = "프로젝트 명을 입력해주세요.")
+    @NotBlank(message = "프로젝트명을 입력해주세요.")
     private String contactProjectTitle;
-    @NotBlank(message = "프로젝트 제작 일정을 입력해주세요.")
+    @NotBlank(message = "제작 일정을 입력해주세요.")
     private String contactProjectSchedule;
-    @NotBlank(message = "영상 길이를 확인해주세요.")
+    @NotBlank(message = "영상 길이를 선택해주세요.")
     private String contactVideoLength;
-    @NotBlank(message = "제작 예산을 확인해주세요.")
+    @NotBlank(message = "제작 예산을 선택해주세요.")
     private String contactBudget;
 
     private String contactContent;

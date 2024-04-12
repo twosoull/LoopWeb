@@ -53,7 +53,11 @@ public class ContactService {
     public void sendMailContact(ContactForm contactForm, Files files) throws MessagingException {
 
         String subject = "["+contactForm.getContactClientCompany()+"] " + contactForm.getContactProjectTitle();
-        String fileFullPath = fileServerPath + files.getFilePath();
+
+        String fileFullPath = "";
+        if(files != null){
+            fileFullPath = fileServerPath + files.getFilePath();
+        }
         String content = makeHtml(contactForm);
 
         mailUtil.sendMail(contactForm.getContactClientMail(),fileFullPath,subject,content);
@@ -65,15 +69,15 @@ public class ContactService {
      * @return
      */
     public String makeHtml(ContactForm contactForm) {
-        String contactClientCompany = "contactClientCompany";
-        String contactClientName = "contactClientName";
-        String contactClientTel = "contactClientTel";
-        String contactClientMail = "contactClientMail";
-        String contactClientTitle = "contactClientTitle";
-        String contactProjectSchedule = "contactProjectSchedule";
-        String contactVideoLength = "contactVideoLength";
-        String contactBudget = "contactBudget";
-        String contactContent = "asfas";
+        String contactClientCompany = contactForm.getContactClientCompany();
+        String contactClientName = contactForm.getContactClientName();
+        String contactClientTel = contactForm.getContactClientTel();
+        String contactClientMail = contactForm.getContactClientMail();
+        String contactProjectTitle = contactForm.getContactProjectTitle();
+        String contactProjectSchedule = contactForm.getContactProjectSchedule();
+        String contactVideoLength = contactForm.getContactVideoLength();
+        String contactBudget = contactForm.getContactBudget();
+        String contactContent = contactForm.getContactContent();
 
         String content = "<!DOCTYPE html>\r\n"
                 + "<html lang=\"en\">\r\n"
@@ -100,7 +104,7 @@ public class ContactService {
                 + "                    <p style=\"margin:0px;\">성함 : " + contactClientName + "</p>\r\n"
                 + "                    <p style=\"margin:0px;\">연락처 : " + contactClientTel + "</p>\r\n"
                 + "                    <p style=\"margin:0px;\">고객사 메일 : " + contactClientMail + "</p>\r\n"
-                + "                    <p style=\"margin:0px;\">프로젝트명 : " + contactClientTitle + "</p>\r\n"
+                + "                    <p style=\"margin:0px;\">프로젝트명 : " + contactProjectTitle + "</p>\r\n"
                 + "                    <p style=\"margin:0px;\">제작일정 : " + contactProjectSchedule + "</p>\r\n"
                 + "                    <p style=\"margin:0px;\">영상길이 : " + contactVideoLength + "</p>\r\n"
                 + "                    <p style=\"margin:0px;\">제작예산 : " + contactBudget + "</p>\r\n"

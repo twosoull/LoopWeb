@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +37,12 @@ public class ContactController {
      * @return
      */
     @PostMapping("/contact/save")
-    public ResponseEntity<Message> save(@Valid ContactForm contactForm) throws MessagingException {
+    public ResponseEntity<Message> save(@RequestPart("contactForm") @Valid ContactForm contactForm,
+    @RequestPart(value = "files", required = false) MultipartFile[] multipartFiles)throws MessagingException {
+        if(multipartFiles != null){
+            contactForm.setMultipartFile(multipartFiles[0]);
+        }
+
         Contact saveContact = contactService.save(contactForm);
         ContactDto contactDto = new ContactDto(saveContact);
         String cd = "contact_file";

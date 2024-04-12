@@ -6,6 +6,7 @@ import com.loopcreative.web.error.UserErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,9 +25,12 @@ public class FileUtil {
     //private final String SAVEROOT = "/resources/static/upload/file";
 
     //front dev
-    private final String RESOURCESDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public";
-    private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources/image";
-    private final String SAVEROOT = "/resources/image";
+    @Value("${file.server.path}")
+    private  String fileServerPath;
+    @Value("${file.server.saveDir}")
+    private String saveDir = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources/image";
+    @Value("${file.server.saveRoot}")
+    private  String saveRoot = "/resources/image";
 
 
     //final String SAVEDIR = "C:\\loop\\loopMotionStudio\\LoopMotionStudio\\src\\main\\webapp\\resources\\upload\\images";
@@ -39,7 +43,7 @@ public class FileUtil {
      * @return
      */
     public Files uploadFile(MultipartFile file) {
-        Boolean hasFile = !file.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
+        Boolean hasFile = file != null && !file.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
         if(!hasFile){return null;}
 
         hasFile = file.getOriginalFilename() != null ? Boolean.TRUE : Boolean.FALSE;
@@ -57,8 +61,8 @@ public class FileUtil {
 
             long fileSize = file.getSize();
 
-            String savePath = SAVEDIR + "/" + saveName;
-            String filePath = SAVEROOT + "/" + saveName;
+            String savePath = saveDir + "/" + saveName;
+            String filePath = saveRoot + "/" + saveName;
             log.info("--파일 물리적 저장--");
             log.info("--orgName : {}", orgName);
             log.info("--exName : {}", exName);
@@ -126,7 +130,7 @@ public class FileUtil {
     }
     */
     public void downloadFile(String fileName , HttpServletResponse response){
-        File f = new File(SAVEDIR + "/", fileName);
+        File f = new File(saveDir + "/", fileName);
         try {
             // file 다운로드 설정
             response.setContentType("application/download");
@@ -135,7 +139,7 @@ public class FileUtil {
             response.setHeader("Content-Transfer-Encoding", "binary");
             response.setHeader( "Access-Control-Expose-Headers","Content-Disposition");
 
-            byte[] fileByte =  java.nio.file.Files.readAllBytes( new File(SAVEDIR + "/", fileName).toPath());
+            byte[] fileByte =  java.nio.file.Files.readAllBytes( new File(saveDir + "/", fileName).toPath());
             response.getOutputStream().write(fileByte);
             response.getOutputStream().flush();
             response.getOutputStream().close();
@@ -155,7 +159,7 @@ public class FileUtil {
 
         File file = null;
         try {
-            file = new File(URLDecoder.decode(RESOURCESDIR + filePath, "UTF-8")); // 풀패스 필요
+            file = new File(URLDecoder.decode(fileServerPath + filePath, "UTF-8")); // 풀패스 필요
         } catch (UnsupportedEncodingException e) {
             throw new RestApiException(UserErrorCode.FAIL_FILE_REMOVE);
         }

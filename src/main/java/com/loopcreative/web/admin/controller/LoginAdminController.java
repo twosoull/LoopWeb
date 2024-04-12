@@ -6,6 +6,7 @@ import com.loopcreative.web.form.UserForm;
 import com.loopcreative.web.util.Message;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Parameter;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +35,7 @@ public class LoginAdminController {
      * @return
      */
     @PostMapping("/admin/login")
-    public ResponseEntity<Message> login(UserForm userForm, HttpServletRequest request){
+    public ResponseEntity<Message> login(@RequestBody @Valid UserForm userForm, HttpServletRequest request){
 
         UserDto loginUser = userAdminService.Login(userForm);
         HttpSession session = request.getSession();
@@ -51,7 +53,7 @@ public class LoginAdminController {
      * @return
      */
     @PostMapping("/admin/login/join")
-    public ResponseEntity<Message> join(UserForm userForm){
+    public ResponseEntity<Message> join(@Valid UserForm userForm){
 
         String joinUserId = userAdminService.join(userForm);
 
