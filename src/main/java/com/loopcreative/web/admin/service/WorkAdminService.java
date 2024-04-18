@@ -119,6 +119,145 @@ public class WorkAdminService {
         WorkDto workDto = saveWork.changeDto();
         return workDto;
     }
+    /**
+     * 1. Work, Credits, Video 함께 업데이트
+     * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
+     * @param workForm
+     * @param creditsForms
+     * @param videoForms
+     * @param saveFileForms
+     * @param thumbnailFileForm
+     * @param removeFileForms
+     * @param removeVideoForms
+     * @param removeCreditsForms
+     * @return
+     */
+    @Transactional
+    public WorkDto update(WorkForm workForm, List<CreditsForm> creditsForms, List<VideoForm> videoForms, List<FileForm> saveFileForms, FileForm thumbnailFileForm, List<Long> removeFileForms, List<Long> removeVideoForms, List<Long> removeCreditsForms) {
+        Work findWork = workAdminRepository.findById(workForm.getWorkId())
+                .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
+
+        //1. work
+        updateAttributeIfNotNull(workForm.getWorkTitle(), value -> findWork.setWorkTitle(value));
+        updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
+        updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
+
+        //2. video
+        // Videos를 삭제
+        removeVideo(removeVideoForms, findWork);
+        // 등록, 혹은 기존에 있는 아이디면 내용수정
+        videoSaveOrUpdateAccordId(videoForms, findWork);
+
+        //3. file
+        // ***정보 넣을 때에 videoId 찾아서 넣는 로직 추가
+        for(FileForm fileForm : saveFileForms){
+            for(Video video : findWork.getVideos()){
+                if(fileForm.getOrd() == video.getOrd()){
+                    fileForm.setVideoId(video.getId());
+                }
+            }
+        }
+        //삭제 파일 로직
+        fileDelete(removeFileForms);
+        //사진 파일 정보 및 부모키 업데이트
+        alreadyFileWorkAndVideoParentsIdUpdate(saveFileForms, findWork);
+        //썸네일사진 정보 및 부모키 업데이트
+        alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
+
+
+        // 4. credits
+        // Credits 삭제
+        removeCredits(removeCreditsForms, findWork);
+        //credits 기존 id가 0이면 새로 저장
+        //기존에 있는 아이디면 내용수정
+        creditsSaveOrUpdateAccordId(creditsForms, findWork);
+        //순서 정렬
+        List<Credits> findCredits = findWork.getCredits();
+        for(int i=0; i<findCredits.size(); i++){
+            int j = i + 1;
+            findCredits.get(i).setOrd(j);
+        }
+
+        return findWork.changeDto();
+    }
+
+    private void creditsSaveOrUpdateAccordId(List<CreditsForm> creditsForms, Work findWork) {
+        if(creditsForms != null){
+            for (int i = 0; i < creditsForms.size(); i++) {
+                Optional<Credits> findCreditsOptional = creditsAdminRepository.findById(creditsForms.get(i).getId());
+                if(findCreditsOptional.isEmpty()){
+                    //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
+                    String job = creditsForms.get(i).getJob();
+                    String name = creditsForms.get(i).getName();
+                    Credits credits = new Credits(i, job, name);
+                    findWork.addCredits(new Credits(i,job,name));
+                }else{
+                    Credits findCredits = findCreditsOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
+                    findCredits.setJob(creditsForms.get(i).getJob());
+                    findCredits.setName(creditsForms.get(i).getName());
+                }
+            }
+        }
+    }
+
+    private void removeCredits(List<Long> removeCreditsForms, Work findWork) {
+        List<Credits> creditsToRemove = new ArrayList<>();
+        for (Long id : removeCreditsForms) {
+            Iterator<Credits> iterator = findWork.getCredits().iterator();
+            while (iterator.hasNext()) {
+                Credits credits = iterator.next();
+                if (id.equals(credits.getId())) {
+                    creditsToRemove.add(credits);
+                    iterator.remove();
+                }
+            }
+        }
+        for (Credits creditToRemove : creditsToRemove) {
+            creditsAdminRepository.deleteById(creditToRemove.getId());
+        }
+    }
+
+    private void videoSaveOrUpdateAccordId(List<VideoForm> videoForms, Work findWork) {
+        if(videoForms != null && !videoForms.isEmpty()){
+            for (VideoForm videoForm : videoForms) {
+                Optional<Video> findVideoOptional = videoAdminRepository.findById(videoForm.getId());
+
+                if(findVideoOptional.isEmpty()){
+                //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
+                    String url = videoForm.getVideoUrl();
+                    String title = videoForm.getVideoTitle();
+                    String content = videoForm.getVideoContent();
+                    String type = videoForm.getVideoType();
+                    Integer ord = videoForm.getOrd();
+                    findWork.addVideo(new Video(url, title, content, type, ord));
+                }else{
+                    Video findVideo = findVideoOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
+                    findVideo.setVideoUrl(videoForm.getVideoUrl());
+                    findVideo.setVideoTitle(videoForm.getVideoTitle());
+                    findVideo.setVideoContent(videoForm.getVideoContent());
+                    findVideo.setVideoType(videoForm.getVideoType());
+                    findVideo.setOrd(videoForm.getOrd());
+                }
+            }
+        }
+    }
+
+    private void removeVideo(List<Long> removeVideoForms, Work findWork) {
+        List<Video> videosToRemove = new ArrayList<>();
+        for (Long id : removeVideoForms) {
+            Iterator<Video> iterator = findWork.getVideos().iterator();
+            while (iterator.hasNext()) {
+                Video video = iterator.next();
+                if (id.equals(video.getId())) {
+                    videosToRemove.add(video);
+                    iterator.remove();
+                }
+            }
+        }
+        for (Video videoToRemove : videosToRemove) {
+            videoAdminRepository.deleteById(videoToRemove.getId());
+        }
+    }
 
     /**
      * 1. Work는 상세페이지에서 첨부파일을 미리 저장 시켜두었다. (속도문제)
@@ -150,7 +289,7 @@ public class WorkAdminService {
      */
     private void alreadyThumbnailFileParentsIdUpdate(FileForm thumbnailFileForm, Work saveWork) {
         if(thumbnailFileForm != null){
-                fileService.filesThumbnailWorkIdUpdate(saveWork.getId(),thumbnailFileForm.getId(),thumbnailFileForm.getCd());
+            fileService.filesThumbnailWorkIdUpdate(saveWork.getId(),thumbnailFileForm.getId(),thumbnailFileForm.getCd());
 
         }
     }
@@ -164,44 +303,6 @@ public class WorkAdminService {
             fileService.deleteById(removeFileId);
         }
     }
-    /**
-     * 1. Work 객체에 Credits 객체 set
-     * @param creditsForm
-     * @param work
-     */
-    /*
-    private void workAddCredits(CreditsForm creditsForm, Work work) {
-        if(creditsForm.getCreditsOrd() != null){
-            for(int i = 0; i < creditsForm.getCreditsOrd().length; i++){
-                Integer ord = creditsForm.getCreditsOrd()[i];
-                String job = getValueOrNull(creditsForm.getCreditsJob(),i);
-                String name = getValueOrNull(creditsForm.getCreditsName(),i);
-
-                work.addCredits(new Credits(ord,job,name));
-            }
-        }
-    }
-*/
-    /**
-     * 1. Work 객체에 Video 객체 set
-     * @param videoForm
-     * @param work
-     */
-    /*
-    private void workAddVideo(VideoForm videoForm, Work work) {
-        if (videoForm.getVideoOrd() != null) {
-            for (int i = 0; i < videoForm.getVideoOrd().length; i++) {
-                Integer ord = videoForm.getVideoOrd()[i];
-                String url = getValueOrNull(videoForm.getVideoUrl(), i);
-                String type = getValueOrNull(videoForm.getVideoType(), i);
-                String title = getValueOrNull(videoForm.getVideoTitle(), i);
-                String content = getValueOrNull(videoForm.getVideoContent(), i);
-
-                work.addVideo(new Video(url, title, content, type, ord));
-            }
-        }
-    }
-*/
     /**
      * 1. 문자열 "null"이거나 값이 없을 경우에 null 반환
      * @param array
@@ -222,130 +323,6 @@ public class WorkAdminService {
         if (value != null && !Objects.equals(value, "null")) {
             setter.accept(value);
         }
-    }
-    /**
-     * 1. Work, Credits, Video 함께 업데이트
-     * 2. 조회 후 업데이트 로직 반복되며, null 처리 진행
-     * @param workForm
-     * @param creditsForms
-     * @param videoForms
-     * @param saveFileForms
-     * @param thumbnailFileForm
-     * @param removeFileForms
-     * @param removeVideoForms
-     * @param removeCreditsForms
-     * @return
-     */
-    @Transactional
-    public WorkDto update(WorkForm workForm, List<CreditsForm> creditsForms, List<VideoForm> videoForms, List<FileForm> saveFileForms, FileForm thumbnailFileForm, List<Long> removeFileForms, List<Long> removeVideoForms, List<Long> removeCreditsForms) {
-        Work findWork = workAdminRepository.findById(workForm.getWorkId())
-                .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
-
-        //1. work
-        updateAttributeIfNotNull(workForm.getWorkTitle(), value -> findWork.setWorkTitle(value));
-        updateAttributeIfNotNull(workForm.getWorkType(), value -> findWork.setWorkType(value));
-        updateAttributeIfNotNull(workForm.getUseYn(), value -> findWork.setUseYn(value));
-
-        //2. video
-        // Videos를 삭제
-        List<Video> videosToRemove = new ArrayList<>();
-        for (Long id : removeVideoForms) {
-            Iterator<Video> iterator = findWork.getVideos().iterator();
-            while (iterator.hasNext()) {
-                Video video = iterator.next();
-                if (id.equals(video.getId())) {
-                    videosToRemove.add(video);
-                    iterator.remove();
-                }
-            }
-        }
-        for (Video videoToRemove : videosToRemove) {
-            videoAdminRepository.deleteById(videoToRemove.getId());
-        }
-
-        //기존에 있는 아이디면 내용수정
-        if(videoForms != null && !videoForms.isEmpty()){
-            for (VideoForm videoForm : videoForms) {
-                Optional<Video> findVideoOptional = videoAdminRepository.findById(videoForm.getId());
-
-                if(findVideoOptional.isEmpty()){
-                //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
-                    String url = videoForm.getVideoUrl();
-                    String title = videoForm.getVideoTitle();
-                    String content = videoForm.getVideoContent();
-                    String type = videoForm.getVideoType();
-                    Integer ord = videoForm.getOrd();
-                    findWork.addVideo(new Video(url, title, content, type, ord));
-                }else{
-                    Video findVideo = findVideoOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
-                    findVideo.setVideoUrl(videoForm.getVideoUrl());
-                    findVideo.setVideoTitle(videoForm.getVideoTitle());
-                    findVideo.setVideoContent(videoForm.getVideoContent());
-                    findVideo.setVideoType(videoForm.getVideoType());
-                    findVideo.setOrd(videoForm.getOrd());
-                }
-            }
-        }
-        //3. file
-        //file del 지우기
-        // ***정보 넣을 때에 videoId 찾아서 넣는 로직 추가
-        for(FileForm fileForm : saveFileForms){
-            for(Video video : findWork.getVideos()){
-                if(fileForm.getOrd() == video.getOrd()){
-                    fileForm.setVideoId(video.getId());
-                }
-            }
-        }
-        //삭제 파일 로직
-        fileDelete(removeFileForms);
-        //사진 파일 정보 및 부모키 업데이트
-        alreadyFileWorkAndVideoParentsIdUpdate(saveFileForms, findWork);
-        //썸네일사진 정보 및 부모키 업데이트
-        alreadyThumbnailFileParentsIdUpdate(thumbnailFileForm,findWork);
-
-
-        // 4. credits
-        // Credits 삭제
-        List<Credits> creditsToRemove = new ArrayList<>();
-        for (Long id : removeCreditsForms) {
-            Iterator<Credits> iterator = findWork.getCredits().iterator();
-            while (iterator.hasNext()) {
-                Credits credits = iterator.next();
-                if (id.equals(credits.getId())) {
-                    creditsToRemove.add(credits);
-                    iterator.remove();
-                }
-            }
-        }
-        for (Credits creditToRemove : creditsToRemove) {
-            creditsAdminRepository.deleteById(creditToRemove.getId());
-        }
-        //credits 기존 id가 0이면 새로 저장
-        //기존에 있는 아이디면 내용수정
-        if(creditsForms != null){
-            for (int i=0; i < creditsForms.size(); i++) {
-                Optional<Credits> findCreditsOptional = creditsAdminRepository.findById(creditsForms.get(i).getId());
-                if(findCreditsOptional.isEmpty()){
-                    //video id는 0으로 잡히지 않는다 추가 된 것으로 확인하면
-                    String job = creditsForms.get(i).getJob();
-                    String name = creditsForms.get(i).getName();
-                    Credits credits = new Credits(i, job, name);
-                    findWork.addCredits(new Credits(i,job,name));
-                }else{
-                    Credits findCredits = findCreditsOptional.orElseThrow(() -> new RestApiException(UserErrorCode.EXCEPTION_BASIC));
-                    findCredits.setJob(creditsForms.get(i).getJob());
-                    findCredits.setName(creditsForms.get(i).getName());
-                }
-            }
-        }
-        //순서 정렬
-        List<Credits> findCredits = findWork.getCredits();
-        for(int i=0; i<findCredits.size(); i++){
-            int j = i + 1;
-            findCredits.get(i).setOrd(j);
-        }
-
-        return findWork.changeDto();
     }
 
 }
