@@ -35,7 +35,7 @@ public class LoginAdminController {
      * @return
      */
     @PostMapping("/admin/login")
-    public ResponseEntity<Message> login(@RequestBody @Valid UserForm userForm, HttpServletRequest request){
+    public ResponseEntity<Message> login(@RequestBody @Valid UserForm userForm, HttpServletRequest request) throws Exception{
 
         UserDto loginUser = userAdminService.Login(userForm);
         HttpSession session = request.getSession();

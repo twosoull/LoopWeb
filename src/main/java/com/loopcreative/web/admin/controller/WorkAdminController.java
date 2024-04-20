@@ -76,7 +76,7 @@ public class WorkAdminController {
      * @return
      */
     @PostMapping("/admin/work/save")
-    public ResponseEntity<Message> save(@RequestBody WorkSaveRequest workSaveRequest){ //valid 처리 필요
+    public ResponseEntity<Message> save(@RequestBody WorkSaveRequest workSaveRequest){
         WorkDto workDto = workAdminService.save(
                 workSaveRequest.getWorkForm(),
                 workSaveRequest.getCreditsForms(),
@@ -85,8 +85,7 @@ public class WorkAdminController {
                 workSaveRequest.getThumbnailFileForm(),
                 workSaveRequest.getRemoveFileForms());
 
-        //Message message = new Message(workDto);
-        Message message = new Message();
+        Message message = new Message(workDto);
         return new ResponseEntity<>(message,HttpStatus.OK);
     }
 
