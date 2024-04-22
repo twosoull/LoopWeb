@@ -46,23 +46,13 @@ public class FileService {
      * @param Id
      */
     public void removeFile(Long Id) {
-
         Files files = fileRepository.findById(Id)
                 .orElseThrow(() -> new RestApiException(UserErrorCode.NO_RESULT));
 
-        deleteFileAndData(files);
-
-    }
-
-    /**
-     * 1. 물리 파일과 db 데이터 삭제
-     * @param files
-     */
-    private void deleteFileAndData(Files files) {
-        boolean removeResult = fileUtil.removeFile(files.getFilePath());
-
-        if(removeResult){
-            fileRepository.delete(files);
+        if(".gif".equals(files.getExName())){
+            awsDeleteFileAndData(files);
+        }else{
+            deleteFileAndData(files);
         }
     }
 
@@ -75,11 +65,29 @@ public class FileService {
         List<Files> filesList = fileRepository.findByUseYn("N");
 
         for (Files files : filesList) {
-            deleteFileAndData(files);
+            if(".gif".equals(files.getExName())){
+                awsDeleteFileAndData(files);
+            }else{
+                deleteFileAndData(files);
+            }
         }
 
     }
+    /**
+     * 1. 물리 파일과 db 데이터 삭제
+     * @param files
+     */
+    private void deleteFileAndData(Files files) {
+        boolean removeResult = fileUtil.removeFile(files.getFilePath());
 
+        if(removeResult){
+            fileRepository.delete(files);
+        }
+    }
+    private void awsDeleteFileAndData(Files files) {
+        fileUtil.deleteAwsUploadFile(files.getSaveName());
+        fileRepository.delete(files);
+    }
     /**
      * 1. ContactId를 부모키로 수정
      * 2. useYn은 "Y"로 부모키가 있고, 사용 된다는 것으로 수정
@@ -111,11 +119,12 @@ public class FileService {
 
     public void deleteById(Long removeFileId){
         Files files = fileRepository.findById(removeFileId).orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_REMOVE_FILE_NO_RESULT));
-        boolean removeResult = fileUtil.removeFile(files.getFilePath());
-        if(removeResult){
-            fileRepository.deleteById(removeFileId);
+
+        if(".gif".equals(files.getExName())){
+            awsDeleteFileAndData(files);
         }else{
-            throw new RestApiException(UserErrorCode.FAIL_FILE_REMOVE);
+            deleteFileAndData(files);
         }
     }
+
 }

@@ -1,20 +1,39 @@
 package com.loopcreative.web.util;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.loopcreative.web.entity.Files;
 import com.loopcreative.web.error.RestApiException;
 import com.loopcreative.web.error.UserErrorCode;
+import com.loopcreative.web.util.gif.GifDecoder;
+import com.loopcreative.web.util.gif.GifSequenceWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.UUID;
 
 @Slf4j
-@Component
+@Controller
 public class FileUtil {
 
     //back dev
@@ -30,6 +49,12 @@ public class FileUtil {
     @Value("${file.server.saveRoot}")
     private  String saveRoot = "/resources/image";
 
+
+    @Autowired
+    private AmazonS3Client amazonS3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     //final String SAVEDIR = "C:\\loop\\loopMotionStudio\\LoopMotionStudio\\src\\main\\webapp\\resources\\upload\\images";
     //final String SAVEROOT = "/resources/upload/images";
@@ -57,8 +82,6 @@ public class FileUtil {
             // 저장명
             String saveName = System.currentTimeMillis() + UUID.randomUUID().toString() + exName;
 
-            long fileSize = file.getSize();
-
             String savePath = saveDir + "/" + saveName;
             String filePath = saveRoot + "/" + saveName;
             log.info("--파일 물리적 저장--");
@@ -68,9 +91,7 @@ public class FileUtil {
             log.info("--savePath : {}", savePath);
             log.info("--filePath : {}", filePath);
 
-
             boolean success = Boolean.FALSE;
-            boolean fail = !success;
             try {
                 byte[] fileData = file.getBytes();
 
@@ -89,44 +110,21 @@ public class FileUtil {
             }
             log.info("--파일 물리적 저장 end--");
 
-            Files files = null;
-            if (success) {
-                files = new Files(filePath, orgName, exName, saveName);
-            }
+            Files files = getFiles(orgName, exName, saveName, filePath, success);
             return files;
         }else{
             return null;
         }
     }
 
-    /**
-     * 1. 파일 다운로드
-     * 2. 파일저장이름으로 파일을 다운로드한다
-     * @param fileName
-     * @param response
-     */
-    /*
-    public void downloadFile(String fileName , HttpServletResponse response){
-        File f = new File(SAVEDIR + "/", fileName);
-        try {
-            // file 다운로드 설정
-            response.setContentType("application/download");
-            response.setContentLength((int)f.length());
-            response.setHeader("Content-disposition", "attachment;filename=\"" + fileName + "\"");
-            // response 객체를 통해서 서버로부터 파일 다운로드
-            OutputStream os = null;
-            os = response.getOutputStream();
-            // 파일 입력 객체 생성
-            FileInputStream fis = new FileInputStream(f);
-            FileCopyUtils.copy(fis, os);
-            fis.close();
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RestApiException(UserErrorCode.FAIL_FILE_DOWNLOAD);
+    private Files getFiles(String orgName, String exName, String saveName, String filePath, boolean success) {
+        Files files = null;
+        if (success) {
+            files = new Files(filePath, orgName, exName, saveName);
         }
+        return files;
     }
-    */
+
     public void downloadFile(String fileName , HttpServletResponse response){
         File f = new File(saveDir + "/", fileName);
         try {
@@ -169,4 +167,72 @@ public class FileUtil {
 
         return result;
     }
+
+    public void resizeAndSave(byte[] fileData, String savePath, int width, int height) throws IOException {
+        // GIF 이미지를 BufferedImage로 변환
+        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(fileData));
+
+        // BufferedImage를 리사이징
+        BufferedImage resizedImage = Thumbnails.of(originalImage)
+                .size(width, height)
+                .asBufferedImage();
+
+        // 리사이징된 이미지를 GIF로 저장
+        ImageIO.write(resizedImage, "jpg", new File(savePath));
+    }
+
+    @PostMapping("/fileTest")
+    public Files awsUploadFile(MultipartFile file) {
+        Boolean hasFile = file != null && !file.isEmpty() ? Boolean.TRUE : Boolean.FALSE;
+        if(!hasFile){return null;}
+
+        hasFile = file.getOriginalFilename() != null ? Boolean.TRUE : Boolean.FALSE;
+        if (!hasFile) {return null;}
+
+        if(hasFile) {
+
+            // 오리지널 파일이름
+            String orgName = file.getOriginalFilename();
+            orgName = orgName.replaceAll(" ", "");
+            // 확장자
+            String exName = orgName.substring(orgName.lastIndexOf("."));
+            // 저장명
+            String saveName = System.currentTimeMillis() + UUID.randomUUID().toString() + exName;
+
+            log.info("--AWS S3 저장--");
+            log.info("--orgName : {}", orgName);
+            log.info("--exName : {}", exName);
+
+            boolean success = Boolean.FALSE;
+            try {
+
+                ObjectMetadata metadata= new ObjectMetadata();
+                metadata.setContentType(file.getContentType());
+                metadata.setContentLength(file.getSize());
+                amazonS3Client.putObject(bucket, saveName, file.getInputStream(), metadata);
+
+                success = Boolean.TRUE;
+            } catch (IOException e) {
+                e.printStackTrace();
+                success = Boolean.FALSE;
+            }
+            String saveUrl = amazonS3Client.getUrl(bucket,saveName).toString();
+            log.info("--saveName : {}", saveUrl);
+            log.info("--AWS S3 저장 end--");
+
+            Files files = getFiles(orgName, exName, saveName,saveUrl, success);
+            return files;
+        }else{
+            return null;
+        }
+
+    }
+
+    public void deleteAwsUploadFile(String fileName){
+        log.info("AWS파일 삭제--------------------------------start");
+        DeleteObjectRequest request = new DeleteObjectRequest(bucket, fileName);
+        amazonS3Client.deleteObject(request);
+        log.info("AWS파일 삭제--------------------------------end");
+    }
+
 }

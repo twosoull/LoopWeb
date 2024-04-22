@@ -39,7 +39,23 @@ public class FileController {
     @PostMapping("/fileUpload")
     public ResponseEntity<Message> insertFile(FileForm fileForm){
 
-        Files files = fileUtil.uploadFile(fileForm.getMultipartFile());
+        String orgName = fileForm.getMultipartFile().getOriginalFilename();
+        orgName = orgName.replaceAll(" ", "");
+        // 확장자
+        String exName = orgName.substring(orgName.lastIndexOf("."));
+        Files files = null;
+        if(".gif".equals(exName)){
+            files = fileUtil.awsUploadFile(fileForm.getMultipartFile());
+        }else{
+            files = fileUtil.uploadFile(fileForm.getMultipartFile());
+        }
+
+        if(files == null){
+            Message message = new Message();
+            message.setMessage("파일을 찾을 수 없습니다.");
+            return new ResponseEntity<Message>(message, HttpStatus.OK);
+        }
+
         files.setCd(fileForm.getCd());
         files.setOrd(fileForm.getOrd());
         files.setPicOrd(fileForm.getPicOrd());
@@ -60,6 +76,7 @@ public class FileController {
      */
     @PostMapping("/fileRemove")
     public ResponseEntity<Message> removeFile(@RequestParam("fileId")Long fileId){
+
         fileService.removeFile(fileId);
 
         return new ResponseEntity<Message>(new Message(),HttpStatus.OK);
