@@ -119,12 +119,14 @@ public class FileService {
 
     public void deleteById(Long removeFileId){
         Files files = fileRepository.findById(removeFileId).orElseThrow(() -> new RestApiException(UserErrorCode.FAIL_REMOVE_FILE_NO_RESULT));
-
+        deleteFileAndData(files);
+        /*
         if(".gif".equals(files.getExName())){
             awsDeleteFileAndData(files);
         }else{
             deleteFileAndData(files);
         }
+        */
     }
 
 }

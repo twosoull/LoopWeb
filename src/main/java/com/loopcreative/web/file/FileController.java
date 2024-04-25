@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,8 @@ public class FileController {
     private final FileUtil fileUtil;
     private final FileService fileService;
 
-    private final String SAVEDIR = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/workSpace/loopcreative/src/main/resources/static/upload/file";
+    @Value("${file.server.saveDir}")
+    private final String SAVEDIR;
     /**
      * 1. 파일 업로드이며 연관관계 설정 이전에 사용된다.
      *    (parent_no는 각각 엔티티(Work, Contact)에서 생성시 업데이트 된다.
@@ -43,13 +45,16 @@ public class FileController {
         orgName = orgName.replaceAll(" ", "");
         // 확장자
         String exName = orgName.substring(orgName.lastIndexOf("."));
+
         Files files = null;
+        files = fileUtil.uploadFile(fileForm.getMultipartFile());
+        /*
         if(".gif".equals(exName)){
             files = fileUtil.awsUploadFile(fileForm.getMultipartFile());
         }else{
             files = fileUtil.uploadFile(fileForm.getMultipartFile());
         }
-
+        */
         if(files == null){
             Message message = new Message();
             message.setMessage("파일을 찾을 수 없습니다.");

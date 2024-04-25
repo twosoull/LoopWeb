@@ -34,9 +34,9 @@ public class FileUtil {
     @Value("${file.server.path}")
     private  String fileServerPath;
     @Value("${file.server.saveDir}")
-    private String saveDir = "/Users/iyeonghun/Desktop/PROJECT/LoopCreative/front/front/public/resources/image";
+    private String saveDir;
     @Value("${file.server.saveRoot}")
-    private  String saveRoot = "/resources/image";
+    private  String saveRoot;
 
 
     @Autowired
