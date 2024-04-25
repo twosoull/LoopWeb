@@ -24,7 +24,7 @@ public class Files {
     private String exName;
     private String saveName;
     private String cd;
-    private Integer tmplType; //템플릿 순서
+    private Integer tmplType; //템플릿 유형
     private Integer picOrd; //사진 순서
     private String useYn;
 
