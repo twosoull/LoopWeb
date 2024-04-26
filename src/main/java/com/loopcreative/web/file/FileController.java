@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class FileController {
     private final FileService fileService;
 
     @Value("${file.server.saveDir}")
-    private final String SAVEDIR;
+    private String SAVEDIR;
     /**
      * 1. 파일 업로드이며 연관관계 설정 이전에 사용된다.
      *    (parent_no는 각각 엔티티(Work, Contact)에서 생성시 업데이트 된다.
@@ -93,9 +94,10 @@ public class FileController {
      * @param response
      */
     @GetMapping("/fileDownload")
-    public ResponseEntity<byte[]> downloadFile(@RequestParam("fileName")String fileName, HttpServletResponse response) throws IOException {
+    public ResponseEntity<byte[]> downloadFile(@RequestParam("fileName")String fileName
+                                               ,@RequestParam("orgFileName")String orgFileName
+                                                , HttpServletResponse response) throws IOException {
         File file = new File(SAVEDIR + "/", fileName);
-        log.info("dsad");
         byte[] fileContent = new byte[(int) file.length()];
 
         try (FileInputStream fis = new FileInputStream(file)) {
@@ -108,11 +110,12 @@ public class FileController {
 
         Tika tika = new Tika();
         // MIME 타입 설정
+
         String mimeType = tika.detect(file); // Apache Tika를 사용하여 MIME 타입 감지
         MediaType mediaType = MediaType.parseMediaType(mimeType);
-
+        String encodedFileName = URLEncoder.encode(orgFileName, "UTF-8");
         return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=" + fileName)
+                .header("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"")
                 .contentType(mediaType) // MIME 타입 설정
                 .body(fileContent);
 

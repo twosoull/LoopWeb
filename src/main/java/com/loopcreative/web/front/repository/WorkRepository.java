@@ -14,6 +14,6 @@ public interface WorkRepository extends JpaRepository<Work,Long> {
             "WHERE w.id = :id ORDER BY CASE WHEN f.cd = 'thumb_nail' THEN 0 ELSE 1 END, f.ord ASC, f.tmplType ASC, f.picOrd ASC")
     Optional<Work> findWorkFileById(@Param("id")Long id);
 
-    List<Work> findFirst20ByOrderByRegDateDesc();
+    List<Work> findFirst20ByUseYnOrderByRegDateDesc(@Param("useYn") String UseYn);
     List<Work> findAllByUseYnOrderByRegDateDesc(@Param("useYn") String UseYn);
 }

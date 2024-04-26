@@ -27,7 +27,7 @@ public class WorkService {
     private final FileRepository fileRepository;
 
     public List<WorkDto> findFirst20ByOrderByRegDateDesc(){
-        List<Work> works = workRepository.findFirst20ByOrderByRegDateDesc();
+        List<Work> works = workRepository.findFirst20ByUseYnOrderByRegDateDesc("Y");
         workServiceVali.hasList(works);
 
         List<WorkDto> collect = works.stream().map(w -> new WorkDto(w)).collect(Collectors.toList());

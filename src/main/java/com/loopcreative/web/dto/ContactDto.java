@@ -16,7 +16,7 @@ public class ContactDto {
 
     private Long contact_no;
 
-    private Files files;
+    private FilesDto files;
 
     private String contactClientCompany;
     private String contactClientName;
@@ -34,7 +34,9 @@ public class ContactDto {
 
     public ContactDto(Contact c){
         this.contact_no = c.getId();
-        this.files = c.getFiles();
+        if(c.getFiles() != null){
+                this.files = new FilesDto(c.getFiles());
+        }
         this.contactClientCompany = c.getContactClientCompany();
         this.contactClientName = c.getContactClientName();
         this.contactClientTel = c.getContactClientTel();

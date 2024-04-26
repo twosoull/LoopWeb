@@ -41,6 +41,7 @@ public class ContactService {
     @Transactional
     public Contact save(ContactForm contactForm){
         contactServiceVali.saveValidation(contactForm);
+
         Contact contact = contactForm.toEntity(contactForm);
         Contact saveContact = contactRepository.save(contact);
         return saveContact;

@@ -42,7 +42,7 @@ public class ContactController {
         if(multipartFiles != null){
             contactForm.setMultipartFile(multipartFiles[0]);
         }
-
+        contactForm.setUseYn("Y");
         Contact saveContact = contactService.save(contactForm);
         ContactDto contactDto = new ContactDto(saveContact);
         String cd = "contact_file";
