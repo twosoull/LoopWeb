@@ -157,6 +157,7 @@ public class WorkAdminService {
                 }
             }
         }
+        em.flush();
         //삭제 파일 로직
         fileDelete(removeFileForms);
         //사진 파일 정보 및 부모키 업데이트
