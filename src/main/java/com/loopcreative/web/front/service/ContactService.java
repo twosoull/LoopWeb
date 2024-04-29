@@ -30,7 +30,7 @@ public class ContactService {
     private final ContactServiceVali contactServiceVali;
     private final JavaMailSenderImpl javaMailSender;
     private final MailUtil mailUtil;
-
+//
     @Value("${file.server.path}")
     private String fileServerPath;
     /**
