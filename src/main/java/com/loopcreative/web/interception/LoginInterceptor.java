@@ -2,6 +2,7 @@ package com.loopcreative.web.interception;
 
 import com.loopcreative.web.error.RestApiException;
 import com.loopcreative.web.error.UserErrorCode;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -14,9 +15,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        response.setHeader("Access-Control-Allow-Private-Network", "true");
+
         String requestURI = request.getRequestURI();
         log.info("[LoginInterceptor] URI : " + requestURI);
         HttpSession session = request.getSession(false);
+        Cookie[] cookies = request.getCookies();
 
         if(session == null || session.getAttribute("admin") == null){
             log.info("[LoginInterceptor] : 미인증 사용자 ");

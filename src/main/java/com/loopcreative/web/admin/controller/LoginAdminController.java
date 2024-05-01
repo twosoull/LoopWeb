@@ -4,7 +4,9 @@ import com.loopcreative.web.admin.service.UserAdminService;
 import com.loopcreative.web.dto.UserDto;
 import com.loopcreative.web.form.UserForm;
 import com.loopcreative.web.util.Message;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,30 @@ public class LoginAdminController {
      * @return
      */
     @PostMapping("/admin/login")
-    public ResponseEntity<Message> login(@RequestBody @Valid UserForm userForm, HttpServletRequest request) throws Exception{
+    public ResponseEntity<Message> login(@RequestBody @Valid UserForm userForm, HttpServletRequest request
+    , HttpServletResponse response) throws Exception{
+
+        UserDto loginUser = userAdminService.Login(userForm);
+        HttpSession session = request.getSession();
+        session.setAttribute("admin",loginUser);
+        session.setMaxInactiveInterval(3600);
+
+        Cookie cookie = new Cookie("userId", loginUser.getUserId());
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return new ResponseEntity<>(new Message(loginUser.getUserId()), HttpStatus.OK);
+    }
+
+    /**
+     * 1. session에 로그인 회원 담기 (Password 담지 않음)
+     * 2. 로그인 유저의 id 반환
+     * @param userForm
+     * @param request
+     * @return
+     */
+    @PostMapping("/admin/login1")
+    public ResponseEntity<Message> login1(@Valid UserForm userForm, HttpServletRequest request) throws Exception{
 
         UserDto loginUser = userAdminService.Login(userForm);
         HttpSession session = request.getSession();
