@@ -37,6 +37,9 @@ public class WorkDto {
         this.useYn = w.getUseYn();
         this.regDate = w.getRegDate();
         this.updDate = w.getUpdDate();
+        if(w.getFiles().size() != 0){
+            setFileToDto(w.getFiles().get(0));
+        }
     }
 
     public void setFileToDto(Files f){

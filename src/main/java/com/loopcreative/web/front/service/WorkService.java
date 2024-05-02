@@ -26,31 +26,20 @@ public class WorkService {
     private final WorkServiceVali workServiceVali;
     private final FileRepository fileRepository;
 
-    public List<WorkDto> findFirst20ByOrderByRegDateDesc(){
-        List<Work> works = workRepository.findFirst20ByUseYnOrderByRegDateDesc("Y");
+    public List<WorkDto> findFirst20ByUseYnAndFilesCdOrderByIdDesc(){
+        List<Work> works = workRepository.findWorkFilesFirst20ByUseYnAndFilesCdOrderByIdDesc("Y","thumb_nail");
         workServiceVali.hasList(works);
 
         List<WorkDto> collect = works.stream().map(w -> new WorkDto(w)).collect(Collectors.toList());
-        for (WorkDto work : collect) {
-            Optional<Files> OptionalFiles = fileRepository.findByWorkNoAndCd(work.getId(), "thumb_nail");
-            if(!OptionalFiles.isEmpty()){
-                work.setFileToDto(OptionalFiles.get());
-            }
-        }
+
         return collect;
     }
 
-    public List<WorkDto> findAllByUseYnOrderByRegDateDesc(){
-        List<Work> works = workRepository.findAllByUseYnOrderByRegDateDesc("Y");
+    public List<WorkDto> findAllByUseYnAndFilesCdOrderByIdDesc(){
+        List<Work> works = workRepository.findAllByUseYnAndFilesCdOrderByIdDesc("Y","thumb_nail");
         workServiceVali.hasList(works);
 
         List<WorkDto> collect = works.stream().map(w -> new WorkDto(w)).collect(Collectors.toList());
-        for (WorkDto work : collect) {
-            Optional<Files> OptionalFiles = fileRepository.findByWorkNoAndCd(work.getId(), "thumb_nail");
-            if(!OptionalFiles.isEmpty()){
-                work.setFileToDto(OptionalFiles.get());
-            }
-        }
 
         return collect;
     }

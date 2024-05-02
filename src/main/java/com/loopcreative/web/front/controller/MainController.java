@@ -26,7 +26,7 @@ public class MainController {
      */
     @GetMapping("/main")
     public ResponseEntity<Message> Main(){
-        List<WorkDto> workDtos = workService.findFirst20ByOrderByRegDateDesc();
+        List<WorkDto> workDtos = workService.findFirst20ByUseYnAndFilesCdOrderByIdDesc();
 
         Message message = new Message(workDtos);
         return new ResponseEntity<Message>(message,HttpStatus.OK);

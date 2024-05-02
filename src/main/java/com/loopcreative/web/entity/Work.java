@@ -5,6 +5,8 @@ import com.loopcreative.web.dto.FilesDto;
 import com.loopcreative.web.dto.VideoDto;
 import com.loopcreative.web.dto.WorkDto;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Where;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
